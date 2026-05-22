@@ -12,17 +12,13 @@ import java.util.ArrayList;
  * @author edangulo
  */
 public class Appointment {
-    
+
     private final String id;
     private Patient patient;
     private Doctor doctor;
     private Specialty specialty;
     private LocalDateTime datetime;
     private String reason;
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
     private boolean type;
     private ArrayList<Prescription> prescriptions;
     private AppointmentStatus status;
@@ -30,6 +26,28 @@ public class Appointment {
     private String observations;
     private String recommendedTreatment;
     private String followUp;
+
+    public Appointment(String id, Patient patient, Doctor doctor, Specialty specialty, LocalDateTime datetime, String reason, boolean type) {
+        this.id = id;
+        this.patient = patient;
+        this.doctor = doctor;
+        this.specialty = specialty;
+        this.datetime = datetime;
+        this.reason = reason;
+        this.type = type;
+        this.status = AppointmentStatus.REQUESTED;
+        this.prescriptions = new ArrayList<>();
+    }
+
+    // ── Setters ───────────────────────────────────────────────────────────────
+
+    public void setStatus(AppointmentStatus status) {
+        this.status = status;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 
     public void setDiagnosis(String diagnosis) {
         this.diagnosis = diagnosis;
@@ -47,24 +65,19 @@ public class Appointment {
         this.followUp = followUp;
     }
 
-    public Appointment(String id, Patient patient, Doctor doctor, Specialty specialty, LocalDateTime datetime, String reason, boolean type) {
-        this.id = id;
-        this.patient = patient;
-        this.doctor = doctor;
-        this.specialty = specialty;
+    /** Setter para reagendar (LocalDateTime es inmutable — siempre usar setter). */
+    public void setDatetime(LocalDateTime datetime) {
         this.datetime = datetime;
-        this.reason = reason;
-        this.type = type;
-        this.status = AppointmentStatus.REQUESTED;
-        this.prescriptions = new ArrayList<>();
     }
 
-    public void setStatus(AppointmentStatus status) {
-        this.status = status;
-    }
+    // ── Getters ───────────────────────────────────────────────────────────────
 
     public String getId() {
         return id;
+    }
+
+    public Patient getPatient() {
+        return patient;
     }
 
     public Doctor getDoctor() {
@@ -87,16 +100,8 @@ public class Appointment {
         return status;
     }
 
-    public Patient getPatient() {
-        return patient;
-    }
-
     public String getReason() {
         return reason;
-    }
-
-    public ArrayList<Prescription> getPrescriptions() {
-        return prescriptions;
     }
 
     public String getDiagnosis() {
@@ -115,8 +120,12 @@ public class Appointment {
         return followUp;
     }
 
+    public ArrayList<Prescription> getPrescriptions() {
+        return prescriptions;
+    }
+
     public boolean addPrescription(Prescription prescrip) {
         return this.prescriptions.add(prescrip);
     }
-    
+
 }
