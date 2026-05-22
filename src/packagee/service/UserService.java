@@ -1,0 +1,244 @@
+package packagee.service;
+
+import packagee.*;
+import packagee.repository.UserRepository;
+import packagee.response.ServiceResponse;
+import packagee.util.Validator;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+
+/**
+ * Servicio de gestión de usuarios.
+ * Contiene reglas de negocio para registrar y actualizar pacientes y doctores.
+ * Persiste cambios via UserRepository.
+ */
+public class UserService {
+
+    private final UserRepository userRepo;
+
+    public UserService(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    // ── Registro Paciente ─────────────────────────────────────────────────────
+
+    /**
+     * Registra un nuevo paciente con todas las validaciones requeridas.
+     */
+    public ServiceResponse registerPatient(
+            String idStr, String username, String firstname, String lastname,
+            String password, String confirm, String email,
+            String birthdateStr, String genderStr, String phoneStr, String address,
+            ArrayList<User> users) {
+
+        // Validaciones
+        if (!Validator.isValidId(idStr))
+            return ServiceResponse.badRequest("El ID debe tener exactamente 12 dígitos.");
+        if (!Validator.isValidUsername(username))
+            return ServiceResponse.badRequest("Username inválido (no puede estar vacío ni tener espacios).");
+        if (!Validator.notBlank(firstname) || !Validator.notBlank(lastname))
+            return ServiceResponse.badRequest("Nombre y apellido son obligatorios.");
+        if (!Validator.passwordsMatch(password, confirm))
+            return ServiceResponse.badRequest("Las contraseñas no coinciden.");
+        if (!Validator.isValidEmail(email))
+            return ServiceResponse.badRequest("Email inválido. Formato: usuario@dominio.ext");
+        if (!Validator.isValidDate(birthdateStr))
+            return ServiceResponse.badRequest("Fecha de nacimiento inválida. Formato: AAAA-MM-DD");
+        if (!Validator.isValidPhone(phoneStr))
+            return ServiceResponse.badRequest("Teléfono debe tener exactamente 10 dígitos.");
+        if (!Validator.notBlank(address))
+            return ServiceResponse.badRequest("Dirección es obligatoria.");
+
+        long id = Long.parseLong(idStr);
+        long phone = Long.parseLong(phoneStr);
+
+        // Unicidad
+        for (User u : users) {
+            if (u.getId() == id)
+                return ServiceResponse.conflict("Ya existe un usuario con ID " + id + ".");
+            if (u.getUsername().equals(username))
+                return ServiceResponse.conflict("El username '" + username + "' ya está en uso.");
+        }
+
+        boolean gender = "Male".equalsIgnoreCase(genderStr) || "1".equals(genderStr) || "true".equalsIgnoreCase(genderStr);
+        LocalDate birthdate;
+        try {
+            birthdate = LocalDate.parse(birthdateStr);
+        } catch (DateTimeParseException e) {
+            return ServiceResponse.badRequest("Fecha inválida: " + birthdateStr);
+        }
+
+        Patient patient = new Patient(id, username, firstname, lastname, password, email, birthdate, gender, phone, address);
+        users.add(patient);
+        userRepo.saveAll(users);
+
+        return ServiceResponse.ok("Paciente registrado exitosamente.", patient);
+    }
+
+    // ── Registro Doctor ───────────────────────────────────────────────────────
+
+    /**
+     * Registra un nuevo doctor con validaciones completas.
+     */
+    public ServiceResponse registerDoctor(
+            String idStr, String username, String firstname, String lastname,
+            String password, String confirm, String specialtyStr,
+            String licenseNumber, String assignedOffice,
+            ArrayList<User> users) {
+
+        if (!Validator.isValidId(idStr))
+            return ServiceResponse.badRequest("El ID debe tener exactamente 12 dígitos.");
+        if (!Validator.isValidUsername(username))
+            return ServiceResponse.badRequest("Username inválido.");
+        if (!Validator.notBlank(firstname) || !Validator.notBlank(lastname))
+            return ServiceResponse.badRequest("Nombre y apellido son obligatorios.");
+        if (!Validator.passwordsMatch(password, confirm))
+            return ServiceResponse.badRequest("Las contraseñas no coinciden.");
+        if (!Validator.isValidLicense(licenseNumber))
+            return ServiceResponse.badRequest("Licencia médica inválida. Formato: L-XXXXXXXXXX MTL");
+        if (!Validator.isValidOffice(assignedOffice))
+            return ServiceResponse.badRequest("Oficina inválida. Formato: O-XXX");
+
+        long id = Long.parseLong(idStr);
+
+        for (User u : users) {
+            if (u.getId() == id)
+                return ServiceResponse.conflict("Ya existe un usuario con ID " + id + ".");
+            if (u.getUsername().equals(username))
+                return ServiceResponse.conflict("El username '" + username + "' ya está en uso.");
+        }
+
+        Specialty specialty;
+        try {
+            specialty = parseSpecialty(specialtyStr);
+        } catch (Exception e) {
+            return ServiceResponse.badRequest("Especialidad inválida: " + specialtyStr);
+        }
+
+        Doctor doctor = new Doctor(id, username, firstname, lastname, password, specialty, licenseNumber, assignedOffice);
+        users.add(doctor);
+        userRepo.saveAll(users);
+
+        return ServiceResponse.ok("Doctor registrado exitosamente.", doctor);
+    }
+
+    // ── Actualizar Paciente ───────────────────────────────────────────────────
+
+    /**
+     * Actualiza datos de un paciente existente.
+     */
+    public ServiceResponse updatePatient(
+            Patient patient, String firstname, String lastname,
+            String email, String birthdateStr, String genderStr,
+            String phoneStr, String address, String username,
+            String password, String confirm,
+            ArrayList<User> users) {
+
+        if (!Validator.notBlank(firstname) || !Validator.notBlank(lastname))
+            return ServiceResponse.badRequest("Nombre y apellido son obligatorios.");
+        if (!Validator.isValidEmail(email))
+            return ServiceResponse.badRequest("Email inválido.");
+        if (!Validator.isValidDate(birthdateStr))
+            return ServiceResponse.badRequest("Fecha de nacimiento inválida. Formato: AAAA-MM-DD");
+        if (!Validator.isValidPhone(phoneStr))
+            return ServiceResponse.badRequest("Teléfono debe tener 10 dígitos.");
+        if (!Validator.isValidUsername(username))
+            return ServiceResponse.badRequest("Username inválido.");
+        if (!Validator.passwordsMatch(password, confirm))
+            return ServiceResponse.badRequest("Las contraseñas no coinciden.");
+
+        // Verificar username único (excluyendo al propio usuario)
+        for (User u : users) {
+            if (u.getId() != patient.getId() && u.getUsername().equals(username))
+                return ServiceResponse.conflict("El username '" + username + "' ya está en uso.");
+        }
+
+        patient.setFirstname(firstname);
+        patient.setLastname(lastname);
+        patient.setEmail(email);
+        patient.setBirthdate(LocalDate.parse(birthdateStr));
+        boolean gender = "Male".equalsIgnoreCase(genderStr) || "1".equals(genderStr) || "true".equalsIgnoreCase(genderStr);
+        patient.setGender(gender);
+        patient.setPhone(Long.parseLong(phoneStr));
+        patient.setAddress(address);
+        patient.setUsername(username);
+        patient.setPassword(password);
+
+        userRepo.saveAll(users);
+        return ServiceResponse.ok("Paciente actualizado exitosamente.", patient);
+    }
+
+    // ── Actualizar Doctor ─────────────────────────────────────────────────────
+
+    /**
+     * Actualiza datos de un doctor existente.
+     */
+    public ServiceResponse updateDoctor(
+            Doctor doctor, String firstname, String lastname,
+            String specialtyStr, String licenseNumber, String assignedOffice,
+            String username, String password, String confirm,
+            ArrayList<User> users) {
+
+        if (!Validator.notBlank(firstname) || !Validator.notBlank(lastname))
+            return ServiceResponse.badRequest("Nombre y apellido son obligatorios.");
+        if (!Validator.isValidLicense(licenseNumber))
+            return ServiceResponse.badRequest("Licencia médica inválida. Formato: L-XXXXXXXXXX MTL");
+        if (!Validator.isValidOffice(assignedOffice))
+            return ServiceResponse.badRequest("Oficina inválida. Formato: O-XXX");
+        if (!Validator.isValidUsername(username))
+            return ServiceResponse.badRequest("Username inválido.");
+        if (!Validator.passwordsMatch(password, confirm))
+            return ServiceResponse.badRequest("Las contraseñas no coinciden.");
+
+        for (User u : users) {
+            if (u.getId() != doctor.getId() && u.getUsername().equals(username))
+                return ServiceResponse.conflict("El username '" + username + "' ya está en uso.");
+        }
+
+        Specialty specialty;
+        try {
+            specialty = parseSpecialty(specialtyStr);
+        } catch (Exception e) {
+            return ServiceResponse.badRequest("Especialidad inválida: " + specialtyStr);
+        }
+
+        doctor.setFirstname(firstname);
+        doctor.setLastname(lastname);
+        doctor.setSpecialty(specialty);
+        doctor.setLicenceNumber(licenseNumber);
+        doctor.setAssignedOffice(assignedOffice);
+        doctor.setUsername(username);
+        doctor.setPassword(password);
+
+        userRepo.saveAll(users);
+        return ServiceResponse.ok("Doctor actualizado exitosamente.", doctor);
+    }
+
+    // ── Helper ────────────────────────────────────────────────────────────────
+
+    /**
+     * Convierte el texto del ComboBox al enum Specialty.
+     * Compatible con los valores del ComboBox de las vistas existentes.
+     */
+    public static Specialty parseSpecialty(String specStr) {
+        String normalized = specStr.toUpperCase()
+                .replaceAll("\\s*&\\s*", "_")
+                .replaceAll("\\s+", "_");
+        return switch (normalized) {
+            case "GENERAL_MEDICINE" -> Specialty.GENERAL_MEDICINE;
+            case "CARDIOLOGY" -> Specialty.CARDIOLOGY;
+            case "PEDIATRICS" -> Specialty.PEDIATRICS;
+            case "NEUROLOGY" -> Specialty.NEUROLOGY;
+            case "TRAUMATOLOGY_ORTHOPEDICS" -> Specialty.TRAUMATOLOGY_ORTHOPEDICS;
+            case "GYNECOLOGY_OBSTETRICS" -> Specialty.GYNECOLOGY_OBSTETRICS;
+            case "DERMATOLOGY" -> Specialty.DERMATOLOGY;
+            case "PSYCHIATRY" -> Specialty.PSYCHIATRY;
+            case "ONCOLOGY" -> Specialty.ONCOLOGY;
+            case "OPHTHALMOLOGY" -> Specialty.OPHTHALMOLOGY;
+            case "INTERNAL_MEDICINE" -> Specialty.INTERNAL_MEDICINE;
+            default -> throw new IllegalArgumentException("Especialidad desconocida: " + specStr);
+        };
+    }
+}

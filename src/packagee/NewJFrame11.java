@@ -6,6 +6,10 @@ package packagee;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import packagee.controller.AdminController;
+import packagee.controller.LoginController;
+import packagee.response.ServiceResponse;
 
 /**
  *
@@ -16,17 +20,23 @@ public class NewJFrame11 extends javax.swing.JFrame {
 
     private int x, y;
     private ArrayList<User> users;
-    private ArrayList<Appointment>appointments;
-    private ArrayList<Hospitalization>hospitalizations;
+    private ArrayList<Appointment> appointments;
+    private ArrayList<Hospitalization> hospitalizations;
     private User user;
-    public NewJFrame11(User user, ArrayList<User>users,ArrayList<Hospitalization> hospitalizations, ArrayList<Appointment> appointments) {
+    private final AdminController adminController;
+
+    public NewJFrame11(User user, ArrayList<User> users, ArrayList<Hospitalization> hospitalizations, ArrayList<Appointment> appointments) {
         initComponents();
         this.user = user;
         this.users = users;
         this.hospitalizations = hospitalizations;
         this.appointments = appointments;
+        this.adminController = new AdminController();
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
+        // Poblar combos con doctores y pacientes disponibles
+        populateDoctorCombo();
+        populatePatientCombo();
     }
 
     /**
@@ -415,51 +425,95 @@ public class NewJFrame11 extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        String firstname = jTextField3.getText();
-        String lastname = jTextField4.getText();
-        long id = Long.parseLong(jTextField5.getText());
-        String spec = jComboBox1.getItemAt(jComboBox1.getSelectedIndex());
-        String licenseNumber = jTextField6.getText();
-        String assignedOffice = jTextField7.getText();
-        String username = jTextField8.getText();
-        String password = jTextField9.getText();
-        String comPassword = jTextField10.getText();
-        Specialty specialty = Specialty.valueOf(spec.replaceAll(" &", "").replaceAll(" ", "_"));
-        if (password.equals(comPassword)) {
-            users.add(new Doctor(id, username, firstname, lastname, password, specialty, licenseNumber, assignedOffice));
+        // Registro de doctor — delegar al AdminController con validaciones
+        String specStr = jComboBox1.getItemAt(jComboBox1.getSelectedIndex());
+        ServiceResponse response = adminController.registerDoctor(
+                jTextField5.getText().trim(),   // id
+                jTextField8.getText().trim(),   // username
+                jTextField3.getText().trim(),   // firstname
+                jTextField4.getText().trim(),   // lastname
+                jTextField9.getText().trim(),   // password
+                jTextField10.getText().trim(),  // confirm
+                specStr,                        // specialty
+                jTextField6.getText().trim(),   // licenseNumber
+                jTextField7.getText().trim()    // assignedOffice
+        );
+        JOptionPane.showMessageDialog(this, response.getMessage(),
+                response.isSuccess() ? "Registro" : "Error",
+                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            // Refrescar combo de doctores
+            populateDoctorCombo();
         }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        long idDoctor = Long.parseLong(jComboBox2.getItemAt(jComboBox2.getSelectedIndex()));
-        Doctor temp = null;
-        for(User use:this.users){
-            if(use.getId() == idDoctor)
-                temp =(Doctor) user;
+        // Navegar a vista de doctor — fix bug: usar idDoctor de jComboBox2
+        String selectedItem = (String) jComboBox2.getSelectedItem();
+        if (selectedItem == null || selectedItem.equals("Select one")) {
+            JOptionPane.showMessageDialog(this, "Selecciona un doctor.", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-        NewJFrame111 doctor = new NewJFrame111(user,temp, users, hospitalizations,appointments);
-        this.setVisible(false);
-        doctor.setVisible(true);
+        try {
+            long idDoctor = Long.parseLong(selectedItem);
+            Doctor temp = adminController.findDoctorById(idDoctor);
+            if (temp == null) {
+                JOptionPane.showMessageDialog(this, "Doctor no encontrado.", "Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            NewJFrame111 doctor = new NewJFrame111(user, temp, users, hospitalizations, appointments);
+            this.setVisible(false);
+            doctor.setVisible(true);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID de doctor inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
-        
         NewJFrame login = new NewJFrame();
         this.setVisible(false);
         login.setVisible(true);
     }//GEN-LAST:event_jButton10ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        long idPatient = Long.parseLong(jComboBox2.getItemAt(jComboBox2.getSelectedIndex()));
-        Patient temp = null;
-        for(User use:this.users){
-            if(use.getId() == idPatient)
-                temp =(Patient) user;
+        // Navegar a vista de paciente — fix bug: usar jComboBox3
+        String selectedItem = (String) jComboBox3.getSelectedItem();
+        if (selectedItem == null || selectedItem.equals("Select one")) {
+            JOptionPane.showMessageDialog(this, "Selecciona un paciente.", "Error", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-        NewJFrame1 patient = new NewJFrame1(user,temp,users,appointments,hospitalizations);
-        this.setVisible(false);
-        patient.setVisible(true);
+        try {
+            long idPatient = Long.parseLong(selectedItem);
+            Patient temp = adminController.findPatientById(idPatient);
+            if (temp == null) {
+                JOptionPane.showMessageDialog(this, "Paciente no encontrado.", "Error", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            NewJFrame1 patient = new NewJFrame1(user, temp, users, appointments, hospitalizations);
+            this.setVisible(false);
+            patient.setVisible(true);
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "ID de paciente inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    // ── Métodos helper — poblar ComboBoxes ────────────────────────────────────
+
+    private void populateDoctorCombo() {
+        jComboBox2.removeAllItems();
+        jComboBox2.addItem("Select one");
+        for (Doctor d : adminController.getDoctors()) {
+            jComboBox2.addItem(String.valueOf(d.getId()));
+        }
+    }
+
+    private void populatePatientCombo() {
+        jComboBox3.removeAllItems();
+        jComboBox3.addItem("Select one");
+        for (Patient p : adminController.getPatients()) {
+            jComboBox3.addItem(String.valueOf(p.getId()));
+        }
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

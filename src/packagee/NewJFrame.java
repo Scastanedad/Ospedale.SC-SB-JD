@@ -6,10 +6,11 @@ package packagee;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import java.awt.Color;
-import java.time.LocalDate;
-import java.time.Month;
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import packagee.controller.LoginController;
+import packagee.response.ServiceResponse;
 
 /**
  *
@@ -19,17 +20,14 @@ import javax.swing.UIManager;
 public class NewJFrame extends javax.swing.JFrame {
 
     private int x, y;
-    private ArrayList<User> users;
-    private ArrayList<Hospitalization> hospitalizations;
-    private ArrayList<Appointment> appointments;
+    private final LoginController loginController;
 
     public NewJFrame() {
         initComponents();
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
-
-        this.users = new ArrayList<>();
-        this.users.add(new Administrator(0, "admin", "admin", "adnim", "admin123"));
+        // Carga JSON y servicios al iniciar la aplicación
+        this.loginController = LoginController.getInstance();
     }
 
     /**
@@ -414,50 +412,53 @@ public class NewJFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        User selectedUser = null;
-        for (User user : this.users) {
-            if (jTextField1.getText().equals(user.getUsername())) {
-                selectedUser = user;
-                if (selectedUser.getPassword().equals(jTextField2.getText())) {
-                    if (selectedUser instanceof Administrator ) {
-                        NewJFrame11 admin = new NewJFrame11(selectedUser,users,hospitalizations, appointments);
-                        this.setVisible(false);
-                        admin.setVisible(true);
-                    }
-                    else if (selectedUser instanceof Doctor ) {
-                        NewJFrame111 doctor = new NewJFrame111(selectedUser,(Doctor)selectedUser,users,hospitalizations,appointments);
-                        this.setVisible(false);
-                        doctor.setVisible(true);
-                    }
-                    else {
-                        NewJFrame1 patient = new NewJFrame1(selectedUser,(Patient) selectedUser,users,appointments, hospitalizations);
-                        this.setVisible(false);
-                        patient.setVisible(true);
-                    }
-                }
-            }
+        String username = jTextField1.getText().trim();
+        String password = jTextField2.getText().trim();
+
+        ServiceResponse response = loginController.login(username, password);
+
+        if (!response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Login", JOptionPane.WARNING_MESSAGE);
+            return;
         }
 
+        User selectedUser = (User) response.getData();
+        ArrayList<User> users = loginController.getUsers();
+        ArrayList<Appointment> appointments = loginController.getAppointments();
+        ArrayList<Hospitalization> hospitalizations = loginController.getHospitalizations();
+
+        this.setVisible(false);
+        if (selectedUser instanceof Administrator) {
+            NewJFrame11 admin = new NewJFrame11(selectedUser, users, hospitalizations, appointments);
+            admin.setVisible(true);
+        } else if (selectedUser instanceof Doctor) {
+            NewJFrame111 doctor = new NewJFrame111(selectedUser, (Doctor) selectedUser, users, hospitalizations, appointments);
+            doctor.setVisible(true);
+        } else {
+            NewJFrame1 patient = new NewJFrame1(selectedUser, (Patient) selectedUser, users, appointments, hospitalizations);
+            patient.setVisible(true);
+        }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
-        String firstname = jTextField3.getText();
-        String lastname = jTextField4.getText();
-        long id = Long.parseLong(jTextField5.getText());
-        boolean gender = (jComboBox1.getSelectedIndex() == 0 ? null : (jComboBox1.getSelectedIndex() == 1 ));
-        String birth = jTextField12.getText();
-        String address = jTextField11.getText();
-        long phone = Long.parseLong(jTextField6.getText());
-        String email = jTextField7.getText();
-        String user = jTextField8.getText();
-        String password = jTextField9.getText();
-        String comPassword = jTextField10.getText();
-        LocalDate birthdate = LocalDate.of(Integer.parseInt(birth.substring(0, 4)), Integer.parseInt(birth.substring(5, 7)), Integer.parseInt(birth.substring(8)));
-        if (comPassword.equals(password)) {
-            users.add(new Patient(id, user, firstname, lastname, password, email, birthdate, gender, phone, address));
-        }
-        
+        // Registro de paciente — delegar al LoginController
+        String genderStr = jComboBox1.getItemAt(jComboBox1.getSelectedIndex());
+        ServiceResponse response = loginController.registerPatient(
+                jTextField5.getText().trim(),   // id
+                jTextField8.getText().trim(),   // username
+                jTextField3.getText().trim(),   // firstname
+                jTextField4.getText().trim(),   // lastname
+                jTextField9.getText().trim(),   // password
+                jTextField10.getText().trim(),  // confirm
+                jTextField7.getText().trim(),   // email
+                jTextField12.getText().trim(),  // birthdate
+                genderStr,                      // gender
+                jTextField6.getText().trim(),   // phone
+                jTextField11.getText().trim()   // address
+        );
+        JOptionPane.showMessageDialog(this, response.getMessage(),
+                response.isSuccess() ? "Registro" : "Error",
+                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jTextField10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField10ActionPerformed
