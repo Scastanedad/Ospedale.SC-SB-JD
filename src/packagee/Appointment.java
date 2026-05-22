@@ -91,6 +91,30 @@ public class Appointment {
         return patient;
     }
 
+    public String getReason() {
+        return reason;
+    }
+
+    public ArrayList<Prescription> getPrescriptions() {
+        return prescriptions;
+    }
+
+    public String getDiagnosis() {
+        return diagnosis;
+    }
+
+    public String getObservations() {
+        return observations;
+    }
+
+    public String getRecommendedTreatment() {
+        return recommendedTreatment;
+    }
+
+    public String getFollowUp() {
+        return followUp;
+    }
+
     public boolean addPrescription(Prescription prescrip) {
         return this.prescriptions.add(prescrip);
     }

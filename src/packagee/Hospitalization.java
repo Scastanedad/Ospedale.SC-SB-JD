@@ -25,6 +25,34 @@ public class Hospitalization {
     private String observations;
     private HospitalizationStatus status;
 
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    public String getObservations() {
+        return observations;
+    }
+
+    public HospitalizationStatus getStatus() {
+        return status;
+    }
+
     public void setStatus(HospitalizationStatus status) {
         this.status = status;
     }
