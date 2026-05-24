@@ -40,10 +40,8 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
             btnPrescribe.setVisible(false);
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
-        packagee.controller.LoginController.getInstance().getUserRepo().addObserver(this);
-        packagee.controller.LoginController.getInstance().getAppointmentRepo().addObserver(this);
-        packagee.controller.LoginController.getInstance().getHospitalizationRepo().addObserver(this);
         // Suscribir al Observer
+        LoginController.getInstance().getUserRepo().addObserver(this);
         LoginController.getInstance().getAppointmentRepo().addObserver(this);
         LoginController.getInstance().getHospitalizationRepo().addObserver(this);
         // Poblar combos
