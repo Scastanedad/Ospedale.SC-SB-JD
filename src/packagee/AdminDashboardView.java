@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import packagee.controller.AdminController;
 import packagee.controller.LoginController;
+import packagee.observer.DataObserver;
 import packagee.response.ServiceResponse;
 
 /**
@@ -16,7 +17,7 @@ import packagee.response.ServiceResponse;
  * @author jjlora
  * @author edangulo
  */
-public class AdminDashboardView extends javax.swing.JFrame {
+public class AdminDashboardView extends javax.swing.JFrame implements DataObserver {
 
     private int x, y;
     private ArrayList<User> users;
@@ -37,6 +38,18 @@ public class AdminDashboardView extends javax.swing.JFrame {
         // Poblar combos con doctores y pacientes disponibles
         populateDoctorCombo();
         populatePatientCombo();
+        // Suscribir al Observer
+        packagee.controller.LoginController.getInstance().getUserRepo().addObserver(this);
+    }
+
+    @Override
+    public void onDataChanged(String eventType) {
+        if ("USER".equals(eventType)) {
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                populateDoctorCombo();
+                populatePatientCombo();
+            });
+        }
     }
 
     /**
@@ -441,10 +454,6 @@ public class AdminDashboardView extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(this, response.getMessage(),
                 response.isSuccess() ? "Registro" : "Error",
                 response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
-        if (response.isSuccess()) {
-            // Refrescar combo de doctores
-            populateDoctorCombo();
-        }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

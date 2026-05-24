@@ -42,17 +42,20 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         }
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
-        // Suscribir al Observer para actualizar tablas automáticamente
+        // Suscribir al Observer para actualizar tablas y combos automáticamente
         packagee.controller.LoginController.getInstance().getAppointmentRepo().addObserver(this);
+        packagee.controller.LoginController.getInstance().getUserRepo().addObserver(this);
         // Poblar combo de doctores
         populateDoctorCombo();
     }
 
-    /** Implementación del DataObserver: refresca tabla cuando cambian citas. */
+    /** Implementación del DataObserver: refresca vista cuando cambian datos. */
     @Override
     public void onDataChanged(String eventType) {
         if ("APPOINTMENT".equals(eventType)) {
             javax.swing.SwingUtilities.invokeLater(this::refreshAppointmentsTable);
+        } else if ("USER".equals(eventType)) {
+            javax.swing.SwingUtilities.invokeLater(this::populateDoctorCombo);
         }
     }
 
