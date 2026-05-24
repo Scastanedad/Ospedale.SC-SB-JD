@@ -18,6 +18,12 @@ public class AdminController {
         this.loginCtrl = LoginController.getInstance();
     }
 
+    public void subscribeToUpdates(packagee.observer.DataObserver observer) {
+        loginCtrl.getUserRepo().addObserver(observer);
+        loginCtrl.getAppointmentRepo().addObserver(observer);
+        loginCtrl.getHospitalizationRepo().addObserver(observer);
+    }
+
     /**
      * Registrar un nuevo doctor.
      */

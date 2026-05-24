@@ -17,6 +17,12 @@ public class PatientController {
         this.loginCtrl = LoginController.getInstance();
     }
 
+    public void subscribeToUpdates(packagee.observer.DataObserver observer) {
+        loginCtrl.getUserRepo().addObserver(observer);
+        loginCtrl.getAppointmentRepo().addObserver(observer);
+        loginCtrl.getHospitalizationRepo().addObserver(observer);
+    }
+
     /**
      * Actualiza datos del paciente actual.
      */
@@ -36,38 +42,59 @@ public class PatientController {
                 loginCtrl.getUsers());
     }
 
-    /**
-     * Solicita una cita médica para el paciente.
-     */
     public ServiceResponse requestAppointment(
             long patientId, long doctorId,
             String dateStr, String timeStr, String reason, String typeStr) {
+        if (doctorId == -1) {
+            return ServiceResponse.error("Error: Debe seleccionar un doctor válido.");
+        }
         Patient patient = loginCtrl.findPatientById(patientId);
         Doctor doctor = loginCtrl.findDoctorById(doctorId);
+        if (doctor == null) return ServiceResponse.error("Error: Doctor no encontrado.");
         return loginCtrl.getAppointmentService().createAppointment(
                 patient, doctor, dateStr, timeStr, reason, typeStr,
                 loginCtrl.getAppointments());
     }
 
-    /**
-     * Cancela una cita del paciente.
-     */
     public ServiceResponse cancelAppointment(String appointmentId) {
         return loginCtrl.getAppointmentService().cancelAppointment(
                 appointmentId, loginCtrl.getAppointments());
     }
 
-    /**
-     * Solicita una hospitalización para el paciente.
-     */
     public ServiceResponse requestHospitalization(
             long patientId, long doctorId,
             String dateStr, String reason, String roomTypeStr, String observations) {
+        if (doctorId == -1) {
+            return ServiceResponse.error("Error: Debe seleccionar un doctor válido.");
+        }
         Patient patient = loginCtrl.findPatientById(patientId);
         Doctor doctor = loginCtrl.findDoctorById(doctorId);
+        if (doctor == null) return ServiceResponse.error("Error: Doctor no encontrado.");
         return loginCtrl.getHospitalizationService().createHospitalization(
                 patient, doctor, dateStr, reason, roomTypeStr, observations,
                 loginCtrl.getHospitalizations());
+    }
+
+    public java.util.HashMap<String, Object> findDoctorByName(String fullName) {
+        for (User u : loginCtrl.getUsers()) {
+            if (u instanceof Doctor d) {
+                String name = d.getFirstname() + " " + d.getLastname();
+                if (name.equals(fullName)) return d.serialize();
+            }
+        }
+        return null;
+    }
+
+    public java.util.HashMap<String, Object> findDoctorBySpecialty(String specialtyStr) {
+        try {
+            Specialty spec = Specialty.valueOf(specialtyStr.toUpperCase().replaceAll(" & ", "_").replaceAll(" ", "_"));
+            for (User u : loginCtrl.getUsers()) {
+                if (u instanceof Doctor d && d.getSpecialty() == spec) {
+                    return d.serialize();
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
     }
 
     /**

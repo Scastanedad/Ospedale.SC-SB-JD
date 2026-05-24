@@ -40,9 +40,7 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         }
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
-        packagee.controller.LoginController.getInstance().getUserRepo().addObserver(this);
-        packagee.controller.LoginController.getInstance().getAppointmentRepo().addObserver(this);
-        packagee.controller.LoginController.getInstance().getHospitalizationRepo().addObserver(this);
+        patientController.subscribeToUpdates(this);
         // Suscribir al Observer para actualizar tablas y combos automáticamente
         
         
@@ -883,36 +881,16 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         String typeStr = cmbApptType.getItemAt(cmbApptType.getSelectedIndex());
 
         java.util.HashMap<String, Object> doctor = null;
-        // Si se seleccionó por especialidad (rbApptSpecialty) o por doctor (rbApptDoctor)
         String selected = cmbApptDoctorSpec.getItemAt(cmbApptDoctorSpec.getSelectedIndex());
         if (rbApptDoctor.isSelected()) {
-            // El combo tiene el nombre del doctor, buscar por nombre
-            for (java.util.HashMap<String, Object> u : patientController.getSerializedAllDoctors()) {
-                if (String.valueOf(u.get("type")).equals("Doctor")) { 
-                    java.util.HashMap<String,Object> d = u;
-                    String fullName = d.get("firstname") + " " + d.get("lastname");
-                    if (fullName.equals(selected)) {
-                        doctor = d;
-                        break;
-                    }
-                }
-            }
+            doctor = patientController.findDoctorByName(selected);
         } else if (rbApptSpecialty.isSelected()) {
-            // Buscar primer doctor disponible con la especialidad
-            try {
-                Specialty spec = Specialty.valueOf(selected.toUpperCase().replaceAll(" & ", "_").replaceAll(" ", "_"));
-                for (java.util.HashMap<String, Object> u : patientController.getSerializedAllDoctors()) {
-                    if (String.valueOf(u.get("type")).equals("Doctor") && String.valueOf(u.get("specialty")).equals(spec.name())) { 
-                        java.util.HashMap<String,Object> d = u;
-                        doctor = d;
-                        break;
-                    }
-                }
-            } catch (Exception ignored) {}
+            doctor = patientController.findDoctorBySpecialty(selected);
         }
 
+        long docId = (doctor != null) ? (long)doctor.get("id") : -1;
         ServiceResponse response = patientController.requestAppointment(
-                (long)patientData.get("id"), (long)doctor.get("id"), dateStr, timeStr, reason, typeStr);
+                (long)patientData.get("id"), docId, dateStr, timeStr, reason, typeStr);
         if (response.isSuccess()) {
             JOptionPane.showMessageDialog(this, response.getMessage(), "Cita", JOptionPane.INFORMATION_MESSAGE);
             txtApptDate.setText("");
@@ -938,14 +916,13 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         String roomTypeStr = cmbHospRoom.getItemAt(cmbHospRoom.getSelectedIndex());
         String observations = txtHospObs.getText().trim();
 
-        java.util.HashMap<String, Object> doc = null;
+        long idDoctor = -1;
         try {
-            long idDoctor = Long.parseLong(doctorIdStr);
-            doc = patientController.findDoctorDataById(idDoctor);
+            idDoctor = Long.parseLong(doctorIdStr);
         } catch (Exception ignored) {}
 
         ServiceResponse response = patientController.requestHospitalization(
-                (long)patientData.get("id"), (long)doc.get("id"), dateStr, reason, roomTypeStr, observations);
+                (long)patientData.get("id"), idDoctor, dateStr, reason, roomTypeStr, observations);
         if (response.isSuccess()) {
             JOptionPane.showMessageDialog(this, response.getMessage(), "Hospitalización", JOptionPane.INFORMATION_MESSAGE);
             txtHospReason.setText("");

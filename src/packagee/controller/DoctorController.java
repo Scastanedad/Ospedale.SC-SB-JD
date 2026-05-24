@@ -12,6 +12,12 @@ public class DoctorController {
         this.loginCtrl = LoginController.getInstance();
     }
 
+    public void subscribeToUpdates(packagee.observer.DataObserver observer) {
+        loginCtrl.getUserRepo().addObserver(observer);
+        loginCtrl.getAppointmentRepo().addObserver(observer);
+        loginCtrl.getHospitalizationRepo().addObserver(observer);
+    }
+
     public ServiceResponse updateDoctor(
             long doctorId, String firstname, String lastname,
             String specialtyStr, String licenseNumber, String assignedOffice,
@@ -64,6 +70,7 @@ public class DoctorController {
             String dateStr, String reason, String roomTypeStr, String observations) {
         Patient patient = loginCtrl.findPatientById(patientId);
         Doctor doctor = loginCtrl.findDoctorById(doctorId);
+        if (patient == null) return ServiceResponse.error("Error: Paciente no encontrado.");
         return loginCtrl.getHospitalizationService().createHospitalization(
                 patient, doctor, dateStr, reason, roomTypeStr, observations,
                 loginCtrl.getHospitalizations());

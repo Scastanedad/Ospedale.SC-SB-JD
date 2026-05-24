@@ -41,12 +41,11 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
         // Suscribir al Observer
-        LoginController.getInstance().getUserRepo().addObserver(this);
-        LoginController.getInstance().getAppointmentRepo().addObserver(this);
-        LoginController.getInstance().getHospitalizationRepo().addObserver(this);
+        doctorController.subscribeToUpdates(this);
         // Poblar combos
         populateAppointmentCombos();
         populatePatientCombo();
+        populateHospitalizationCombo();
     }
 
     /** Implementación del DataObserver. */
@@ -55,6 +54,7 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         javax.swing.SwingUtilities.invokeLater(() -> {
             populateAppointmentCombos();
             populatePatientCombo();
+            populateHospitalizationCombo();
         });
     }
 
@@ -1328,8 +1328,6 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
                 appointmentId, medicationName, doseStr,
                 administrationRoute, durationStr, additionalInfo, frecuencyStr
             });
-        }
-        if (response.isSuccess()) {
             JOptionPane.showMessageDialog(this, response.getMessage(), "Prescripción", JOptionPane.INFORMATION_MESSAGE);
             jTextField24.setText("");
             jTextField25.setText("");
