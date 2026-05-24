@@ -29,11 +29,14 @@ public class AdminDashboardView extends javax.swing.JFrame implements DataObserv
         this.adminController = new AdminController();
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
+        packagee.controller.LoginController.getInstance().getUserRepo().addObserver(this);
+        packagee.controller.LoginController.getInstance().getAppointmentRepo().addObserver(this);
+        packagee.controller.LoginController.getInstance().getHospitalizationRepo().addObserver(this);
         // Poblar combos con doctores y pacientes disponibles
         populateDoctorCombo();
         populatePatientCombo();
         // Suscribir al Observer
-        packagee.controller.LoginController.getInstance().getUserRepo().addObserver(this);
+        
     }
 
     @Override

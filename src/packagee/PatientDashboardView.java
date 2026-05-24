@@ -40,9 +40,12 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         }
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
-        // Suscribir al Observer para actualizar tablas y combos automáticamente
-        packagee.controller.LoginController.getInstance().getAppointmentRepo().addObserver(this);
         packagee.controller.LoginController.getInstance().getUserRepo().addObserver(this);
+        packagee.controller.LoginController.getInstance().getAppointmentRepo().addObserver(this);
+        packagee.controller.LoginController.getInstance().getHospitalizationRepo().addObserver(this);
+        // Suscribir al Observer para actualizar tablas y combos automáticamente
+        
+        
         // Poblar combo de doctores
         populateDoctorCombo();
     }

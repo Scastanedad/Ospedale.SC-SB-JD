@@ -62,7 +62,7 @@ public class HospitalizationService implements IHospitalizationService {
         }
 
         LocalDate date = LocalDate.parse(dateStr);
-        String id = generateId(hospitalizations);
+        String id = generateId(hospitalizations, patient.getId());
 
         Hospitalization hospitalization = new Hospitalization(
                 id, patient, doctor, date, reason, roomType, observations);
@@ -108,16 +108,17 @@ public class HospitalizationService implements IHospitalizationService {
         return null;
     }
 
-    private String generateId(ArrayList<Hospitalization> hospitalizations) {
+    private String generateId(ArrayList<Hospitalization> hospitalizations, long patientId) {
         int max = 0;
+        String prefix = "H-" + patientId + "-";
         for (Hospitalization h : hospitalizations) {
-            if (h.getId().startsWith("HOSP-")) {
+            if (h.getId().startsWith(prefix)) {
                 try {
-                    int num = Integer.parseInt(h.getId().substring(5));
+                    int num = Integer.parseInt(h.getId().substring(prefix.length()));
                     if (num > max) max = num;
                 } catch (NumberFormatException ignored) {}
             }
         }
-        return String.format("HOSP-%03d", max + 1);
+        return String.format("%s%04d", prefix, max + 1);
     }
 }
