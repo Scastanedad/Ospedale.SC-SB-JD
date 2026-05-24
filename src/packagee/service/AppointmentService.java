@@ -66,7 +66,7 @@ public class AppointmentService {
         }
 
         boolean type = "In-person".equalsIgnoreCase(typeStr) || "2".equals(typeStr);
-        String id = generateId();
+        String id = generateId(appointments);
 
         Appointment appointment = new Appointment(id, patient, doctor, doctor.getSpecialty(), datetime, reason, type);
         appointments.add(appointment);
@@ -219,7 +219,16 @@ public class AppointmentService {
         return null;
     }
 
-    private String generateId() {
-        return "APT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    private String generateId(ArrayList<Appointment> appointments) {
+        int max = 0;
+        for (Appointment a : appointments) {
+            if (a.getId().startsWith("APP-")) {
+                try {
+                    int num = Integer.parseInt(a.getId().substring(4));
+                    if (num > max) max = num;
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return String.format("APP-%03d", max + 1);
     }
 }

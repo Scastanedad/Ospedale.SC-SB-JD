@@ -62,7 +62,7 @@ public class HospitalizationService {
         }
 
         LocalDate date = LocalDate.parse(dateStr);
-        String id = generateId();
+        String id = generateId(hospitalizations);
 
         Hospitalization hospitalization = new Hospitalization(
                 id, patient, doctor, date, reason, roomType, observations);
@@ -108,7 +108,16 @@ public class HospitalizationService {
         return null;
     }
 
-    private String generateId() {
-        return "HOS-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    private String generateId(ArrayList<Hospitalization> hospitalizations) {
+        int max = 0;
+        for (Hospitalization h : hospitalizations) {
+            if (h.getId().startsWith("HOSP-")) {
+                try {
+                    int num = Integer.parseInt(h.getId().substring(5));
+                    if (num > max) max = num;
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        return String.format("HOSP-%03d", max + 1);
     }
 }
