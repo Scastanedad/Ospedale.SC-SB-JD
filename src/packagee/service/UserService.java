@@ -112,7 +112,7 @@ public class UserService {
 
         Specialty specialty;
         try {
-            specialty = parseSpecialty(specialtyStr);
+            specialty = Specialty.parse(specialtyStr);
         } catch (Exception e) {
             return ServiceResponse.badRequest("Especialidad inválida: " + specialtyStr);
         }
@@ -199,7 +199,7 @@ public class UserService {
 
         Specialty specialty;
         try {
-            specialty = parseSpecialty(specialtyStr);
+            specialty = Specialty.parse(specialtyStr);
         } catch (Exception e) {
             return ServiceResponse.badRequest("Especialidad inválida: " + specialtyStr);
         }
@@ -216,29 +216,4 @@ public class UserService {
         return ServiceResponse.ok("Doctor actualizado exitosamente.", doctor);
     }
 
-    // ── Helper ────────────────────────────────────────────────────────────────
-
-    /**
-     * Convierte el texto del ComboBox al enum Specialty.
-     * Compatible con los valores del ComboBox de las vistas existentes.
-     */
-    public static Specialty parseSpecialty(String specStr) {
-        String normalized = specStr.toUpperCase()
-                .replaceAll("\\s*&\\s*", "_")
-                .replaceAll("\\s+", "_");
-        return switch (normalized) {
-            case "GENERAL_MEDICINE" -> Specialty.GENERAL_MEDICINE;
-            case "CARDIOLOGY" -> Specialty.CARDIOLOGY;
-            case "PEDIATRICS" -> Specialty.PEDIATRICS;
-            case "NEUROLOGY" -> Specialty.NEUROLOGY;
-            case "TRAUMATOLOGY_ORTHOPEDICS" -> Specialty.TRAUMATOLOGY_ORTHOPEDICS;
-            case "GYNECOLOGY_OBSTETRICS" -> Specialty.GYNECOLOGY_OBSTETRICS;
-            case "DERMATOLOGY" -> Specialty.DERMATOLOGY;
-            case "PSYCHIATRY" -> Specialty.PSYCHIATRY;
-            case "ONCOLOGY" -> Specialty.ONCOLOGY;
-            case "OPHTHALMOLOGY" -> Specialty.OPHTHALMOLOGY;
-            case "INTERNAL_MEDICINE" -> Specialty.INTERNAL_MEDICINE;
-            default -> throw new IllegalArgumentException("Especialidad desconocida: " + specStr);
-        };
-    }
 }

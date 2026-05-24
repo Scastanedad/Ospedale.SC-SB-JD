@@ -80,13 +80,10 @@ public class PatientController {
     }
 
     /**
-     * Busca un doctor por ID.
+     * Busca un doctor por ID. Delega al LoginController centralizado.
      */
     public Doctor findDoctorById(long id) {
-        for (User u : loginCtrl.getUsers()) {
-            if (u instanceof Doctor d && d.getId() == id) return d;
-        }
-        return null;
+        return loginCtrl.findDoctorById(id);
     }
 
     public ArrayList<Appointment> getAppointments() {

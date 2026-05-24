@@ -54,23 +54,17 @@ public class AdminController {
     }
 
     /**
-     * Busca un doctor por ID.
+     * Busca un doctor por ID. Delega al LoginController centralizado.
      */
     public Doctor findDoctorById(long id) {
-        for (User u : loginCtrl.getUsers()) {
-            if (u instanceof Doctor d && d.getId() == id) return d;
-        }
-        return null;
+        return loginCtrl.findDoctorById(id);
     }
 
     /**
-     * Busca un paciente por ID.
+     * Busca un paciente por ID. Delega al LoginController centralizado.
      */
     public Patient findPatientById(long id) {
-        for (User u : loginCtrl.getUsers()) {
-            if (u instanceof Patient p && p.getId() == id) return p;
-        }
-        return null;
+        return loginCtrl.findPatientById(id);
     }
 
     public ArrayList<User> getUsers() {

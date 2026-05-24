@@ -106,4 +106,36 @@ public class LoginController {
     public UserService getUserService() { return userService; }
     public AppointmentService getAppointmentService() { return appointmentService; }
     public HospitalizationService getHospitalizationService() { return hospitalizationService; }
+
+    // ── Búsqueda centralizada de usuarios ────────────────────────────────────
+    // Punto único de búsqueda para evitar duplicación en los controladores hijos.
+
+    /**
+     * Busca un doctor por ID numérico entre todos los usuarios cargados.
+     * @param id identificador numérico del doctor
+     * @return Doctor encontrado, o null si no existe
+     */
+    public Doctor findDoctorById(long id) {
+        for (User u : users) {
+            if (u instanceof Doctor d && d.getId() == id) {
+                return d;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Busca un paciente por ID numérico entre todos los usuarios cargados.
+     * @param id identificador numérico del paciente
+     * @return Patient encontrado, o null si no existe
+     */
+    public Patient findPatientById(long id) {
+        for (User u : users) {
+            if (u instanceof Patient p && p.getId() == id) {
+                return p;
+            }
+        }
+        return null;
+    }
 }
+
