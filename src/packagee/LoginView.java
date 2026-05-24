@@ -422,7 +422,8 @@ public class LoginView extends javax.swing.JFrame {
             return;
         }
 
-        User selectedUser = (User) response.getData();
+        long userId = (long) response.getData();
+        User selectedUser = loginController.findUserById(userId);
         ArrayList<User> users = loginController.getUsers();
         ArrayList<Appointment> appointments = loginController.getAppointments();
         ArrayList<Hospitalization> hospitalizations = loginController.getHospitalizations();

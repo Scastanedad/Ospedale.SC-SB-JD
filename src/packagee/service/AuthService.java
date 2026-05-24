@@ -32,7 +32,7 @@ public class AuthService {
             if (user.getUsername().equals(username)) {
                 if (user.getPassword().equals(password)) {
                     String role = resolveRole(user);
-                    return ServiceResponse.ok("Login exitoso. Bienvenido, " + user.getFirstname() + ".", user);
+                    return ServiceResponse.ok("Login exitoso. Bienvenido, " + user.getFirstname() + ".", user.getId());
                 } else {
                     return ServiceResponse.badRequest("Contraseña incorrecta.");
                 }

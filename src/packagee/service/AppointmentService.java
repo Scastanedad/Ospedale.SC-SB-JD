@@ -74,7 +74,7 @@ public class AppointmentService {
         doctor.getAppointments().add(appointment);
 
         appointmentRepo.saveAll(appointments);
-        return ServiceResponse.ok("Cita solicitada exitosamente con ID: " + id, appointment);
+        return ServiceResponse.ok("Cita solicitada exitosamente con ID: " + id);
     }
 
     // ── Aceptar cita ──────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ public class AppointmentService {
 
         appointment.setStatus(AppointmentStatus.PENDING);
         appointmentRepo.saveAll(appointments);
-        return ServiceResponse.ok("Cita aceptada. Estado: PENDING", appointment);
+        return ServiceResponse.ok("Cita aceptada. Estado: PENDING");
     }
 
     // ── Completar cita ────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ public class AppointmentService {
         appointment.setFollowUp(followUp);
 
         appointmentRepo.saveAll(appointments);
-        return ServiceResponse.ok("Cita completada exitosamente.", appointment);
+        return ServiceResponse.ok("Cita completada exitosamente.");
     }
 
     // ── Cancelar cita ─────────────────────────────────────────────────────────
@@ -140,7 +140,7 @@ public class AppointmentService {
 
         appointment.setStatus(AppointmentStatus.CANCELED);
         appointmentRepo.saveAll(appointments);
-        return ServiceResponse.ok("Cita cancelada.", appointment);
+        return ServiceResponse.ok("Cita cancelada.");
     }
 
     // ── Reagendar cita ────────────────────────────────────────────────────────
@@ -169,7 +169,7 @@ public class AppointmentService {
         if (Validator.notBlank(reason)) appointment.setReason(reason);
 
         appointmentRepo.saveAll(appointments);
-        return ServiceResponse.ok("Cita reagendada a " + newDatetime, appointment);
+        return ServiceResponse.ok("Cita reagendada a " + newDatetime);
     }
 
     // ── Prescribir medicamento ────────────────────────────────────────────────
@@ -207,7 +207,7 @@ public class AppointmentService {
                 duration, additionalInstructions, frecuency);
 
         appointmentRepo.saveAll(appointments);
-        return ServiceResponse.ok("Prescripción agregada.", prescription);
+        return ServiceResponse.ok("Prescripción agregada.");
     }
 
     // ── Helper ────────────────────────────────────────────────────────────────

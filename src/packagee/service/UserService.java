@@ -74,7 +74,7 @@ public class UserService {
         users.add(patient);
         userRepo.saveAll(users);
 
-        return ServiceResponse.ok("Paciente registrado exitosamente.", patient);
+        return ServiceResponse.ok("Paciente registrado exitosamente.");
     }
 
     // ── Registro Doctor ───────────────────────────────────────────────────────
@@ -121,7 +121,7 @@ public class UserService {
         users.add(doctor);
         userRepo.saveAll(users);
 
-        return ServiceResponse.ok("Doctor registrado exitosamente.", doctor);
+        return ServiceResponse.ok("Doctor registrado exitosamente.");
     }
 
     // ── Actualizar Paciente ───────────────────────────────────────────────────
@@ -167,7 +167,7 @@ public class UserService {
         patient.setPassword(password);
 
         userRepo.saveAll(users);
-        return ServiceResponse.ok("Paciente actualizado exitosamente.", patient);
+        return ServiceResponse.ok("Paciente actualizado exitosamente.");
     }
 
     // ── Actualizar Doctor ─────────────────────────────────────────────────────
@@ -213,7 +213,7 @@ public class UserService {
         doctor.setPassword(password);
 
         userRepo.saveAll(users);
-        return ServiceResponse.ok("Doctor actualizado exitosamente.", doctor);
+        return ServiceResponse.ok("Doctor actualizado exitosamente.");
     }
 
 }

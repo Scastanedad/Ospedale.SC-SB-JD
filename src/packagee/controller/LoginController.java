@@ -111,6 +111,18 @@ public class LoginController {
     // Punto único de búsqueda para evitar duplicación en los controladores hijos.
 
     /**
+     * Busca cualquier tipo de usuario (Admin, Doctor, Patient) por su ID.
+     */
+    public User findUserById(long id) {
+        for (User u : users) {
+            if (u.getId() == id) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Busca un doctor por ID numérico entre todos los usuarios cargados.
      * @param id identificador numérico del doctor
      * @return Doctor encontrado, o null si no existe

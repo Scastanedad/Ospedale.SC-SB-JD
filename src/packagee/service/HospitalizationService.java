@@ -70,7 +70,7 @@ public class HospitalizationService {
         hospitalizations.add(hospitalization);
         hospitalizationRepo.saveAll(hospitalizations);
 
-        return ServiceResponse.ok("Hospitalización solicitada con ID: " + id, hospitalization);
+        return ServiceResponse.ok("Hospitalización solicitada con ID: " + id);
     }
 
     // ── Cancelar hospitalización ──────────────────────────────────────────────
@@ -96,7 +96,7 @@ public class HospitalizationService {
         }
 
         hospitalizationRepo.saveAll(hospitalizations);
-        return ServiceResponse.ok("Hospitalización cancelada.", hosp);
+        return ServiceResponse.ok("Hospitalización cancelada.");
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
