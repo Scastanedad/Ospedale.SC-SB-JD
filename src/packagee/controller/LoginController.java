@@ -79,7 +79,18 @@ public class LoginController {
      * @return ServiceResponse con data = User autenticado si éxito
      */
     public ServiceResponse login(String username, String password) {
-        return authService.login(username, password, users);
+        ServiceResponse response = authService.login(username, password, users);
+        if (response.isSuccess() && response.getData() instanceof User) {
+            User u = (User) response.getData();
+            return ServiceResponse.ok(response.getMessage(), u.serialize());
+        }
+        return response;
+    }
+
+    public java.util.HashMap<String, Object> findUserDataById(long id) {
+        User u = findUserById(id);
+        if (u != null) return u.serialize();
+        return null;
     }
 
     // ── Registro de paciente (desde LoginView) ────────────────────────────────
@@ -150,4 +161,5 @@ public class LoginController {
         return null;
     }
 }
+
 

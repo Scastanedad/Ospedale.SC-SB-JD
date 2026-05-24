@@ -8,7 +8,7 @@ package packagee;
  *
  * @author edangulo
  */
-public abstract class User {
+public abstract class User implements Serializable {
     
     protected final long id;
     protected String username;
@@ -60,4 +60,15 @@ public abstract class User {
         return password;
     }
     
+    @Override
+    public java.util.HashMap<String, Object> serialize() {
+        java.util.HashMap<String, Object> map = new java.util.HashMap<>();
+        map.put("id", String.valueOf(this.id));
+        map.put("username", this.username);
+        map.put("firstname", this.firstname);
+        map.put("lastname", this.lastname);
+        map.put("password", this.password);
+        map.put("type", this.getClass().getSimpleName());
+        return map;
+    }
 }

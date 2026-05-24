@@ -8,7 +8,7 @@ package packagee;
  *
  * @author jjlora
  */
-public class Prescription {
+public class Prescription implements Serializable {
     private Appointment appointment;
     private String medicationName;
     private double dose;
@@ -56,6 +56,16 @@ public class Prescription {
         return frecuency;
     }
     
-    
-    
+    @Override
+    public java.util.HashMap<String, Object> serialize() {
+        java.util.HashMap<String, Object> map = new java.util.HashMap<>();
+        if(this.appointment != null) map.put("appointmentId", this.appointment.getId());
+        map.put("medicationName", this.medicationName);
+        map.put("dose", String.valueOf(this.dose));
+        map.put("administrationRoute", this.administrationRoute);
+        map.put("treatmentDuration", String.valueOf(this.treatmentDuration));
+        map.put("additionalInstructions", this.additionalInstructions);
+        map.put("frecuency", String.valueOf(this.frecuency));
+        return map;
+    }
 }

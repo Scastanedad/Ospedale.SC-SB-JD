@@ -20,22 +20,20 @@ import packagee.response.ServiceResponse;
 public class PatientDashboardView extends javax.swing.JFrame implements DataObserver {
 
     private int x, y;
-    private ArrayList<User> users;
-    private ArrayList<Appointment> appointments;
-    private ArrayList<Hospitalization> hospitalizations;
-    private User user;
-    private Patient patient;
+    private java.util.HashMap<String, Object> loggedInUserData;
+    private java.util.HashMap<String, Object> patientData;
     private final PatientController patientController;
 
-    public PatientDashboardView(User user, Patient patient, ArrayList<User> users, ArrayList<Appointment> appointments, ArrayList<Hospitalization> hospitalizations) {
+    public PatientDashboardView(java.util.HashMap<String, Object> patientData) {
+        this(patientData, patientData);
+    }
+
+    public PatientDashboardView(java.util.HashMap<String, Object> loggedInUserData, java.util.HashMap<String, Object> patientData) {
         initComponents();
-        this.user = user;
-        this.patient = patient;
-        this.users = users;
-        this.appointments = appointments;
-        this.hospitalizations = hospitalizations;
+        this.loggedInUserData = loggedInUserData;
+        this.patientData = patientData;
         this.patientController = new PatientController();
-        if (user instanceof Administrator) {
+        if ("Administrator".equals(loggedInUserData.get("type"))) {
             btnBack.setVisible(true);
         } else {
             btnBack.setVisible(false);
@@ -806,7 +804,7 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         // Actualizar datos del paciente — delegar al PatientController
         String genderStr = cmbModGender.getItemAt(cmbModGender.getSelectedIndex());
         ServiceResponse response = patientController.updatePatient(
-                patient,
+                (long)patientData.get("id"),
                 txtModFirstname.getText().trim(),
                 txtModLastname.getText().trim(),
                 txtModEmail.getText().trim(),
@@ -842,7 +840,7 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        AdminDashboardView admin = new AdminDashboardView(user, users, hospitalizations, appointments);
+        AdminDashboardView admin = new AdminDashboardView(loggedInUserData);
         this.setVisible(false);
         admin.setVisible(true);
     }//GEN-LAST:event_jButton7ActionPerformed
@@ -867,9 +865,9 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         cmbApptDoctorSpec.removeAllItems();
 
         cmbApptDoctorSpec.addItem("Select one");
-        for (User doc : this.users) {
-            if (doc instanceof Doctor) {
-                cmbApptDoctorSpec.addItem(doc.getFirstname() + " " + doc.getLastname());
+        for (java.util.HashMap<String, Object> doc : patientController.getSerializedAllDoctors()) {
+            if (String.valueOf(doc.get("type")).equals("Doctor")) {
+                cmbApptDoctorSpec.addItem(doc.get("firstname") + " " + doc.get("lastname"));
             }
         }
     }//GEN-LAST:event_jRadioButton4ActionPerformed
@@ -881,14 +879,15 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         String reason = txtApptReason.getText().trim();
         String typeStr = cmbApptType.getItemAt(cmbApptType.getSelectedIndex());
 
-        Doctor doctor = null;
+        java.util.HashMap<String, Object> doctor = null;
         // Si se seleccionó por especialidad (rbApptSpecialty) o por doctor (rbApptDoctor)
         String selected = cmbApptDoctorSpec.getItemAt(cmbApptDoctorSpec.getSelectedIndex());
         if (rbApptDoctor.isSelected()) {
             // El combo tiene el nombre del doctor, buscar por nombre
-            for (User u : this.users) {
-                if (u instanceof Doctor d) {
-                    String fullName = d.getFirstname() + " " + d.getLastname();
+            for (java.util.HashMap<String, Object> u : patientController.getSerializedAllDoctors()) {
+                if (String.valueOf(u.get("type")).equals("Doctor")) { 
+                    java.util.HashMap<String,Object> d = u;
+                    String fullName = d.get("firstname") + " " + d.get("lastname");
                     if (fullName.equals(selected)) {
                         doctor = d;
                         break;
@@ -899,8 +898,9 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
             // Buscar primer doctor disponible con la especialidad
             try {
                 Specialty spec = Specialty.valueOf(selected.toUpperCase().replaceAll(" & ", "_").replaceAll(" ", "_"));
-                for (User u : this.users) {
-                    if (u instanceof Doctor d && d.getSpecialty() == spec) {
+                for (java.util.HashMap<String, Object> u : patientController.getSerializedAllDoctors()) {
+                    if (String.valueOf(u.get("type")).equals("Doctor") && String.valueOf(u.get("specialty")).equals(spec.name())) { 
+                        java.util.HashMap<String,Object> d = u;
                         doctor = d;
                         break;
                     }
@@ -909,7 +909,7 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         }
 
         ServiceResponse response = patientController.requestAppointment(
-                patient, doctor, dateStr, timeStr, reason, typeStr);
+                (long)patientData.get("id"), (long)doctor.get("id"), dateStr, timeStr, reason, typeStr);
         if (response.isSuccess()) {
             JOptionPane.showMessageDialog(this, response.getMessage(), "Cita", JOptionPane.INFORMATION_MESSAGE);
             txtApptDate.setText("");
@@ -935,14 +935,14 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
         String roomTypeStr = cmbHospRoom.getItemAt(cmbHospRoom.getSelectedIndex());
         String observations = txtHospObs.getText().trim();
 
-        Doctor doc = null;
+        java.util.HashMap<String, Object> doc = null;
         try {
             long idDoctor = Long.parseLong(doctorIdStr);
-            doc = patientController.findDoctorById(idDoctor);
+            doc = patientController.findDoctorDataById(idDoctor);
         } catch (Exception ignored) {}
 
         ServiceResponse response = patientController.requestHospitalization(
-                patient, doc, dateStr, reason, roomTypeStr, observations);
+                (long)patientData.get("id"), (long)doc.get("id"), dateStr, reason, roomTypeStr, observations);
         if (response.isSuccess()) {
             JOptionPane.showMessageDialog(this, response.getMessage(), "Hospitalización", JOptionPane.INFORMATION_MESSAGE);
             txtHospReason.setText("");
@@ -960,14 +960,14 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
     private void refreshAppointmentsTable() {
         DefaultTableModel model = (DefaultTableModel) tblAppointments.getModel();
         model.setRowCount(0);
-        for (Appointment a : patient.getAppointments()) {
+        for (java.util.HashMap<String, Object> a : patientController.getSerializedPatientAppointments((long)patientData.get("id"))) {
             model.addRow(new Object[]{
-                a.getId(),
-                a.getDatetime().toString(),
-                a.getDoctor().getFirstname() + " " + a.getDoctor().getLastname(),
-                a.getSpecialty().name(),
-                a.isType() ? "In-person" : "Remote",
-                a.getStatus().name()
+                a.get("id"),
+                String.valueOf(a.get("datetime")),
+                ((java.util.HashMap<String,Object>)a.get("doctor")).get("firstname") + " " + ((java.util.HashMap<String,Object>)a.get("doctor")).get("lastname"),
+                String.valueOf(a.get("specialty")),
+                ((Boolean)a.get("type")) ? "In-person" : "Remote",
+                String.valueOf(a.get("status"))
             });
         }
     }
@@ -975,8 +975,8 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
     private void populateDoctorCombo() {
         cmbHospDoctor.removeAllItems();
         cmbHospDoctor.addItem("Select one");
-        for (Doctor d : patientController.getAllDoctors()) {
-            cmbHospDoctor.addItem(String.valueOf(d.getId()));
+        for (java.util.HashMap<String, Object> d : patientController.getSerializedAllDoctors()) {
+            cmbHospDoctor.addItem(String.valueOf(d.get("id")));
         }
     }
 
@@ -1056,3 +1056,4 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
     private packagee.PanelRound panelRound2;
     // End of variables declaration//GEN-END:variables
 }
+

@@ -10,7 +10,7 @@ import java.time.LocalDate;
  *
  * @author edangulo
  */
-public class Hospitalization {
+public class Hospitalization implements Serializable {
     
     private final String id;
     private Patient patient;
@@ -82,4 +82,23 @@ public class Hospitalization {
         this.status = hopsS;
     }
     
+    @Override
+    public java.util.HashMap<String, Object> serialize() {
+        java.util.HashMap<String, Object> map = new java.util.HashMap<>();
+        map.put("id", this.id);
+        if(this.patient != null) {
+            map.put("patientId", String.valueOf(this.patient.getId()));
+            map.put("patientName", this.patient.getFirstname() + " " + this.patient.getLastname());
+        }
+        if(this.doctor != null) {
+            map.put("doctorId", String.valueOf(this.doctor.getId()));
+            map.put("doctorName", this.doctor.getFirstname() + " " + this.doctor.getLastname());
+        }
+        if(this.date != null) map.put("date", this.date.toString());
+        map.put("reason", this.reason);
+        if(this.roomType != null) map.put("roomType", this.roomType.name());
+        map.put("observations", this.observations);
+        if(this.status != null) map.put("status", this.status.name());
+        return map;
+    }
 }

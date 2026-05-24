@@ -73,6 +73,21 @@ public class Patient extends User {
         return appointments;
     }
     
+    public void setAppointments(ArrayList<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    @Override
+    public java.util.HashMap<String, Object> serialize() {
+        java.util.HashMap<String, Object> map = super.serialize();
+        map.put("email", this.email);
+        if(this.birthdate != null) map.put("birthdate", this.birthdate.toString());
+        map.put("gender", this.gender ? "F" : "M"); // assuming boolean true=F, false=M
+        map.put("phone", String.valueOf(this.phone));
+        map.put("address", this.address);
+        return map;
+    }
+    
     public void addAppointment(Appointment a) {
         this.appointments.add(a);
     }

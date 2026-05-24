@@ -422,21 +422,18 @@ public class LoginView extends javax.swing.JFrame {
             return;
         }
 
-        long userId = (long) response.getData();
-        User selectedUser = loginController.findUserById(userId);
-        ArrayList<User> users = loginController.getUsers();
-        ArrayList<Appointment> appointments = loginController.getAppointments();
-        ArrayList<Hospitalization> hospitalizations = loginController.getHospitalizations();
+        java.util.HashMap<String, Object> userData = (java.util.HashMap<String, Object>) response.getData();
+        String userType = (String) userData.get("type");
 
         this.setVisible(false);
-        if (selectedUser instanceof Administrator) {
-            AdminDashboardView admin = new AdminDashboardView(selectedUser, users, hospitalizations, appointments);
+        if ("Administrator".equals(userType)) {
+            AdminDashboardView admin = new AdminDashboardView(userData);
             admin.setVisible(true);
-        } else if (selectedUser instanceof Doctor) {
-            DoctorDashboardView doctor = new DoctorDashboardView(selectedUser, (Doctor) selectedUser, users, hospitalizations, appointments);
+        } else if ("Doctor".equals(userType)) {
+            DoctorDashboardView doctor = new DoctorDashboardView(userData);
             doctor.setVisible(true);
         } else {
-            PatientDashboardView patient = new PatientDashboardView(selectedUser, (Patient) selectedUser, users, appointments, hospitalizations);
+            PatientDashboardView patient = new PatientDashboardView(userData);
             patient.setVisible(true);
         }
     }//GEN-LAST:event_jButton2ActionPerformed

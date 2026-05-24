@@ -21,22 +21,20 @@ import packagee.response.ServiceResponse;
 public class DoctorDashboardView extends javax.swing.JFrame implements DataObserver {
 
     private int x, y;
-    private User user;
-    private ArrayList<User> users;
-    private ArrayList<Hospitalization> hospitalizations;
-    private ArrayList<Appointment> appointments;
-    private Doctor doctor;
+    private java.util.HashMap<String, Object> loggedInUserData;
+    private java.util.HashMap<String, Object> doctorData;
     private final DoctorController doctorController;
 
-    public DoctorDashboardView(User user, Doctor doc, ArrayList<User> users, ArrayList<Hospitalization> hospitalizations, ArrayList<Appointment> appointments) {
+    public DoctorDashboardView(java.util.HashMap<String, Object> doctorData) {
+        this(doctorData, doctorData);
+    }
+
+    public DoctorDashboardView(java.util.HashMap<String, Object> loggedInUserData, java.util.HashMap<String, Object> doctorData) {
         initComponents();
-        this.user = user;
-        this.users = users;
-        this.doctor = doc;
-        this.hospitalizations = hospitalizations;
-        this.appointments = appointments;
+        this.loggedInUserData = loggedInUserData;
+        this.doctorData = doctorData;
         this.doctorController = new DoctorController();
-        if (user instanceof Administrator)
+        if ("Administrator".equals(loggedInUserData.get("type")))
             btnPrescribe.setVisible(true);
         else
             btnPrescribe.setVisible(false);
@@ -1138,12 +1136,12 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
     private void jRadioButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton4ActionPerformed
         // TODO add your handling code here:
         jRadioButton3.setSelected(false);
-        Doctor d = (Doctor) user;
+        long loggedInId = (long)loggedInUserData.get("id");
         DefaultTableModel model = (DefaultTableModel) tblHospitalizations.getModel();
         model.setRowCount(0);
-        for (Appointment a : d.getAppointments()) {
-            if (a.getStatus().equals(AppointmentStatus.PENDING)) {
-                model.addRow(new Object[]{a.getId(), a.getDatetime().toString(), a.getPatient().getFirstname() + " " + a.getPatient().getLastname(), a.getSpecialty().name(), a.isType() ? "In person" : "Virtual", a.getStatus().name()});
+        for (java.util.HashMap<String, Object> a : doctorController.getDoctorAppointments(loggedInId)) {
+            if (String.valueOf(a.get("status")).equals("PENDING")) {
+                model.addRow(new Object[]{a.get("id"), String.valueOf(a.get("datetime")), ((java.util.HashMap<String,Object>)a.get("patient")).get("firstname") + " " + ((java.util.HashMap<String,Object>)a.get("patient")).get("lastname"), String.valueOf(a.get("specialty")), ((Boolean)a.get("type")) ? "In person" : "Virtual", String.valueOf(a.get("status"))});
             }
         }
     }//GEN-LAST:event_jRadioButton4ActionPerformed
@@ -1152,7 +1150,7 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         // Actualizar datos del doctor — delegar al DoctorController
         String specStr = cmbActionAppt.getItemAt(cmbActionAppt.getSelectedIndex());
         ServiceResponse response = doctorController.updateDoctor(
-                doctor,
+                (long)doctorData.get("id"),
                 txtModFirstname.getText().trim(),
                 txtModLastname.getText().trim(),
                 specStr,
@@ -1184,7 +1182,7 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
     }//GEN-LAST:event_jButton12ActionPerformed
 
     private void jButton11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton11ActionPerformed
-        AdminDashboardView admin = new AdminDashboardView(user, users, hospitalizations, appointments);
+        AdminDashboardView admin = new AdminDashboardView(loggedInUserData);
         this.setVisible(false);
         admin.setVisible(true);
     }//GEN-LAST:event_jButton11ActionPerformed
@@ -1212,14 +1210,15 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
             String observations = txtCompleteDiag.getText().trim();
             String roomTypeStr = "STANDARD"; // valor por defecto
 
-            Patient targetPatient = null;
+            java.util.HashMap<String, Object> targetPatient = null;
+            long pid = -1;
             try {
-                long pid = Long.parseLong(patientIdStr);
-                targetPatient = doctorController.findPatientById(pid);
+                pid = Long.parseLong(patientIdStr);
+                targetPatient = doctorController.findPatientDataById(pid);
             } catch (Exception ignored) {}
 
             ServiceResponse response = doctorController.createHospitalization(
-                    targetPatient, doctor, dateStr, reason, roomTypeStr, observations);
+                    pid, (long)doctorData.get("id"), dateStr, reason, roomTypeStr, observations);
             if (response.isSuccess()) {
                 JOptionPane.showMessageDialog(this, response.getMessage(), "Hospitalización", JOptionPane.INFORMATION_MESSAGE);
                 jTextField21.setText("");
@@ -1235,10 +1234,11 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
         // Ver citas de un paciente seleccionado
         String patientIdStr = cmbRescheduleAppt.getItemAt(cmbRescheduleAppt.getSelectedIndex());
-        Patient p = null;
+        java.util.HashMap<String, Object> p = null;
+        long pid2 = -1;
         try {
-            long pid = Long.parseLong(patientIdStr);
-            p = doctorController.findPatientById(pid);
+            pid2 = Long.parseLong(patientIdStr);
+            p = doctorController.findPatientDataById(pid2);
         } catch (Exception ignored) {}
 
         if (p == null) {
@@ -1247,13 +1247,13 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         }
         DefaultTableModel model = (DefaultTableModel) jTable3.getModel();
         model.setRowCount(0);
-        for (Appointment a : p.getAppointments()) {
+        for (java.util.HashMap<String, Object> a : doctorController.getPatientAppointments(pid2)) {
             model.addRow(new Object[]{
-                a.getId(), a.getDatetime().toString(),
-                a.getDoctor().getFirstname() + " " + a.getDoctor().getLastname(),
-                a.getSpecialty().name(),
-                a.isType() ? "In-person" : "Remote",
-                a.getStatus().name()
+                a.get("id"), String.valueOf(a.get("datetime")),
+                ((java.util.HashMap<String,Object>)a.get("doctor")).get("firstname") + " " + ((java.util.HashMap<String,Object>)a.get("doctor")).get("lastname"),
+                String.valueOf(a.get("specialty")),
+                ((Boolean)a.get("type")) ? "In-person" : "Remote",
+                String.valueOf(a.get("status"))
             });
         }
     }//GEN-LAST:event_jButton8ActionPerformed
@@ -1261,11 +1261,11 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
     private void jRadioButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton3ActionPerformed
         // TODO add your handling code here:
         jRadioButton4.setSelected(false);
-        Doctor d = (Doctor) user;
+        long loggedInId = (long)loggedInUserData.get("id");
         DefaultTableModel model = (DefaultTableModel) tblHospitalizations.getModel();
         model.setRowCount(0);
-        for (Appointment a : d.getAppointments()) {
-            model.addRow(new Object[]{a.getId(), a.getDatetime().toString(), a.getPatient().getFirstname() + " " + a.getPatient().getLastname(), a.getSpecialty().name(), a.isType() ? "In-person" : "Remote", a.getStatus().name()});
+        for (java.util.HashMap<String, Object> a : doctorController.getDoctorAppointments(loggedInId)) {
+            model.addRow(new Object[]{a.get("id"), String.valueOf(a.get("datetime")), ((java.util.HashMap<String,Object>)a.get("patient")).get("firstname") + " " + ((java.util.HashMap<String,Object>)a.get("patient")).get("lastname"), String.valueOf(a.get("specialty")), ((Boolean)a.get("type")) ? "In-person" : "Remote", String.valueOf(a.get("status"))});
         }
     }//GEN-LAST:event_jRadioButton3ActionPerformed
 
@@ -1293,7 +1293,7 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         if (response.isSuccess()) {
             JOptionPane.showMessageDialog(this, response.getMessage(), "Cita Completada", JOptionPane.INFORMATION_MESSAGE);
             txtCompleteDiag.setText("");
-            txtCompleteObs.setText("");
+            txtHospObs.setText("");
             jTextArea7.setText("");
             jTextArea8.setText("");
             if(cmbCancelApptId.getItemCount() > 0) cmbCancelApptId.setSelectedIndex(0);
@@ -1369,8 +1369,8 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         cmbCompleteAppt.addItem("Select one");
         cmbCancelApptId.addItem("Select one");
         cmbPrescribeAppt.addItem("Select one");
-        for (Appointment a : doctor.getAppointments()) {
-            String id = a.getId();
+        for (java.util.HashMap<String, Object> a : doctorController.getDoctorAppointments((long)doctorData.get("id"))) {
+            String id = String.valueOf(a.get("id"));
             cmbActionFilter.addItem(id);
             cmbCompleteAppt.addItem(id);
             cmbCancelApptId.addItem(id);
@@ -1383,17 +1383,17 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         cmbHospPatient.removeAllItems();
         cmbRescheduleAppt.addItem("Select one");
         cmbHospPatient.addItem("Select one");
-        for (Patient p : doctorController.getAllPatients()) {
-            cmbRescheduleAppt.addItem(String.valueOf(p.getId()));
-            cmbHospPatient.addItem(String.valueOf(p.getId()));
+        for (java.util.HashMap<String, Object> p : doctorController.getSerializedAllPatients()) {
+            cmbRescheduleAppt.addItem(String.valueOf(p.get("id")));
+            cmbHospPatient.addItem(String.valueOf(p.get("id")));
         }
     }
 
     private void populateHospitalizationCombo() {
         cmbModSpecialty.removeAllItems();
         cmbModSpecialty.addItem("Select one");
-        for (Hospitalization h : doctor.getHospitalizations()) {
-            cmbModSpecialty.addItem(h.getId());
+        for (java.util.HashMap<String, Object> h : doctorController.getDoctorHospitalizations((long)doctorData.get("id"))) {
+            cmbModSpecialty.addItem(String.valueOf(h.get("id")));
         }
     }
 
@@ -1504,3 +1504,5 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
     private packagee.PanelRound panelRound2;
     // End of variables declaration//GEN-END:variables
 }
+
+

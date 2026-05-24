@@ -2,14 +2,8 @@ package packagee.controller;
 
 import packagee.*;
 import packagee.response.ServiceResponse;
-
 import java.util.ArrayList;
 
-/**
- * Controlador del panel de Doctor.
- * Coordina: actualizar info, aceptar/completar/reagendar/cancelar citas,
- * prescribir medicamentos y gestionar hospitalizaciones.
- */
 public class DoctorController {
 
     private final LoginController loginCtrl;
@@ -18,29 +12,21 @@ public class DoctorController {
         this.loginCtrl = LoginController.getInstance();
     }
 
-    /**
-     * Actualiza datos del doctor actual.
-     */
     public ServiceResponse updateDoctor(
-            Doctor doctor, String firstname, String lastname,
+            long doctorId, String firstname, String lastname,
             String specialtyStr, String licenseNumber, String assignedOffice,
             String username, String password, String confirm) {
+        Doctor doctor = loginCtrl.findDoctorById(doctorId);
         return loginCtrl.getUserService().updateDoctor(
                 doctor, firstname, lastname, specialtyStr, licenseNumber, assignedOffice,
                 username, password, confirm, loginCtrl.getUsers());
     }
 
-    /**
-     * Acepta una cita (REQUESTED → PENDING).
-     */
     public ServiceResponse acceptAppointment(String appointmentId) {
         return loginCtrl.getAppointmentService().acceptAppointment(
                 appointmentId, loginCtrl.getAppointments());
     }
 
-    /**
-     * Completa una cita (PENDING → COMPLETED). Fix del bug original.
-     */
     public ServiceResponse completeAppointment(
             String appointmentId, String diagnosis, String observations,
             String recommendedTreatment, String followUp) {
@@ -49,25 +35,16 @@ public class DoctorController {
                 loginCtrl.getAppointments());
     }
 
-    /**
-     * Cancela una cita.
-     */
     public ServiceResponse cancelAppointment(String appointmentId) {
         return loginCtrl.getAppointmentService().cancelAppointment(
                 appointmentId, loginCtrl.getAppointments());
     }
 
-    /**
-     * Reagenda una cita a nueva hora. Fix del bug de inmutabilidad LocalDateTime.
-     */
     public ServiceResponse rescheduleAppointment(String appointmentId, String newTimeStr, String reason) {
         return loginCtrl.getAppointmentService().rescheduleAppointment(
                 appointmentId, newTimeStr, reason, loginCtrl.getAppointments());
     }
 
-    /**
-     * Prescribe un medicamento para una cita.
-     */
     public ServiceResponse prescribe(
             String appointmentId, String medicationName, String doseStr,
             String administrationRoute, String durationStr,
@@ -78,52 +55,89 @@ public class DoctorController {
                 loginCtrl.getAppointments());
     }
 
-    /**
-     * Crea una hospitalización para un paciente.
-     */
     public ServiceResponse createHospitalization(
-            Patient patient, Doctor doctor,
+            long patientId, long doctorId,
             String dateStr, String reason, String roomTypeStr, String observations) {
+        Patient patient = loginCtrl.findPatientById(patientId);
+        Doctor doctor = loginCtrl.findDoctorById(doctorId);
         return loginCtrl.getHospitalizationService().createHospitalization(
                 patient, doctor, dateStr, reason, roomTypeStr, observations,
                 loginCtrl.getHospitalizations());
     }
 
-    /**
-     * Cancela una hospitalización.
-     */
     public ServiceResponse cancelHospitalization(String hospitalizationId) {
         return loginCtrl.getHospitalizationService().cancelHospitalization(
                 hospitalizationId, loginCtrl.getHospitalizations());
     }
 
-    /**
-     * Busca paciente por ID. Delega al LoginController centralizado.
-     */
-    public Patient findPatientById(long id) {
-        return loginCtrl.findPatientById(id);
+    public java.util.HashMap<String, Object> findPatientDataById(long id) {
+        Patient pat = loginCtrl.findPatientById(id);
+        if(pat != null) return pat.serialize();
+        return null;
     }
 
-    /**
-     * Retorna todos los pacientes (para ComboBox).
-     */
-    public ArrayList<Patient> getAllPatients() {
-        ArrayList<Patient> patients = new ArrayList<>();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedAllPatients() {
+        ArrayList<java.util.HashMap<String, Object>> patients = new ArrayList<>();
         for (User u : loginCtrl.getUsers()) {
-            if (u instanceof Patient p) patients.add(p);
+            if (u instanceof Patient p) patients.add(p.serialize());
         }
         return patients;
     }
 
-    public ArrayList<Appointment> getAppointments() {
-        return loginCtrl.getAppointments();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedAppointments() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        for (Appointment a : loginCtrl.getAppointments()) {
+            list.add(a.serialize());
+        }
+        return list;
     }
 
-    public ArrayList<Hospitalization> getHospitalizations() {
-        return loginCtrl.getHospitalizations();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedHospitalizations() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        for (Hospitalization h : loginCtrl.getHospitalizations()) {
+            list.add(h.serialize());
+        }
+        return list;
     }
 
-    public ArrayList<User> getUsers() {
-        return loginCtrl.getUsers();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedUsers() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        for (User u : loginCtrl.getUsers()) {
+            list.add(u.serialize());
+        }
+        return list;
+    }
+
+    public ArrayList<java.util.HashMap<String, Object>> getDoctorAppointments(long doctorId) {
+        Doctor doc = loginCtrl.findDoctorById(doctorId);
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        if (doc != null) {
+            for (Appointment a : doc.getAppointments()) {
+                list.add(a.serialize());
+            }
+        }
+        return list;
+    }
+
+    public ArrayList<java.util.HashMap<String, Object>> getDoctorHospitalizations(long doctorId) {
+        Doctor doc = loginCtrl.findDoctorById(doctorId);
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        if (doc != null) {
+            for (Hospitalization h : doc.getHospitalizations()) {
+                list.add(h.serialize());
+            }
+        }
+        return list;
+    }
+
+    public ArrayList<java.util.HashMap<String, Object>> getPatientAppointments(long patientId) {
+        Patient pat = loginCtrl.findPatientById(patientId);
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        if(pat != null) {
+            for (Appointment a : pat.getAppointments()) {
+                list.add(a.serialize());
+            }
+        }
+        return list;
     }
 }

@@ -32,50 +32,66 @@ public class AdminController {
     }
 
     /**
-     * Retorna la lista de todos los doctores registrados.
+     * Retorna la lista serializada de todos los doctores.
      */
-    public ArrayList<Doctor> getDoctors() {
-        ArrayList<Doctor> doctors = new ArrayList<>();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedDoctors() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
         for (User u : loginCtrl.getUsers()) {
-            if (u instanceof Doctor d) doctors.add(d);
+            if (u instanceof Doctor d) list.add(d.serialize());
         }
-        return doctors;
+        return list;
     }
 
     /**
-     * Retorna la lista de todos los pacientes registrados.
+     * Retorna la lista serializada de todos los pacientes.
      */
-    public ArrayList<Patient> getPatients() {
-        ArrayList<Patient> patients = new ArrayList<>();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedPatients() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
         for (User u : loginCtrl.getUsers()) {
-            if (u instanceof Patient p) patients.add(p);
+            if (u instanceof Patient p) list.add(p.serialize());
         }
-        return patients;
+        return list;
     }
 
     /**
-     * Busca un doctor por ID. Delega al LoginController centralizado.
+     * Busca un doctor por ID (ahora retorna mapa serializado).
      */
-    public Doctor findDoctorById(long id) {
-        return loginCtrl.findDoctorById(id);
+    public java.util.HashMap<String, Object> findDoctorDataById(long id) {
+        Doctor doc = loginCtrl.findDoctorById(id);
+        if (doc != null) return doc.serialize();
+        return null;
     }
 
     /**
-     * Busca un paciente por ID. Delega al LoginController centralizado.
+     * Busca un paciente por ID (ahora retorna mapa serializado).
      */
-    public Patient findPatientById(long id) {
-        return loginCtrl.findPatientById(id);
+    public java.util.HashMap<String, Object> findPatientDataById(long id) {
+        Patient pat = loginCtrl.findPatientById(id);
+        if (pat != null) return pat.serialize();
+        return null;
     }
 
-    public ArrayList<User> getUsers() {
-        return loginCtrl.getUsers();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedUsers() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        for (User u : loginCtrl.getUsers()) {
+            list.add(u.serialize());
+        }
+        return list;
     }
 
-    public ArrayList<Appointment> getAppointments() {
-        return loginCtrl.getAppointments();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedAppointments() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        for (Appointment a : loginCtrl.getAppointments()) {
+            list.add(a.serialize());
+        }
+        return list;
     }
 
-    public ArrayList<Hospitalization> getHospitalizations() {
-        return loginCtrl.getHospitalizations();
+    public ArrayList<java.util.HashMap<String, Object>> getSerializedHospitalizations() {
+        ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
+        for (Hospitalization h : loginCtrl.getHospitalizations()) {
+            list.add(h.serialize());
+        }
+        return list;
     }
 }

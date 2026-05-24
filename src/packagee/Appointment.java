@@ -11,7 +11,7 @@ import java.util.ArrayList;
  *
  * @author edangulo
  */
-public class Appointment {
+public class Appointment implements Serializable {
 
     private final String id;
     private Patient patient;
@@ -126,6 +126,30 @@ public class Appointment {
 
     public boolean addPrescription(Prescription prescrip) {
         return this.prescriptions.add(prescrip);
+    }
+
+    @Override
+    public java.util.HashMap<String, Object> serialize() {
+        java.util.HashMap<String, Object> map = new java.util.HashMap<>();
+        map.put("id", this.id);
+        if(this.patient != null) {
+            map.put("patientId", String.valueOf(this.patient.getId()));
+            map.put("patientName", this.patient.getFirstname() + " " + this.patient.getLastname());
+        }
+        if(this.doctor != null) {
+            map.put("doctorId", String.valueOf(this.doctor.getId()));
+            map.put("doctorName", this.doctor.getFirstname() + " " + this.doctor.getLastname());
+        }
+        if(this.specialty != null) map.put("specialty", this.specialty.name());
+        if(this.datetime != null) map.put("datetime", this.datetime.toString());
+        map.put("reason", this.reason);
+        map.put("type", this.type ? "In person" : "Virtual");
+        if(this.status != null) map.put("status", this.status.name());
+        map.put("diagnosis", this.diagnosis);
+        map.put("observations", this.observations);
+        map.put("recommendedTreatment", this.recommendedTreatment);
+        map.put("followUp", this.followUp);
+        return map;
     }
 
 }

@@ -62,4 +62,13 @@ public class Doctor extends User {
     public void setAssignedOffice(String assignedOffice) {
         this.assignedOffice = assignedOffice;
     }
+
+    @Override
+    public java.util.HashMap<String, Object> serialize() {
+        java.util.HashMap<String, Object> map = super.serialize();
+        if(this.specialty != null) map.put("specialty", this.specialty.name());
+        map.put("licenceNumber", this.licenceNumber);
+        map.put("assignedOffice", this.assignedOffice);
+        return map;
+    }
 }

@@ -20,18 +20,12 @@ import packagee.response.ServiceResponse;
 public class AdminDashboardView extends javax.swing.JFrame implements DataObserver {
 
     private int x, y;
-    private ArrayList<User> users;
-    private ArrayList<Appointment> appointments;
-    private ArrayList<Hospitalization> hospitalizations;
-    private User user;
+    private java.util.HashMap<String, Object> userData;
     private final AdminController adminController;
 
-    public AdminDashboardView(User user, ArrayList<User> users, ArrayList<Hospitalization> hospitalizations, ArrayList<Appointment> appointments) {
+    public AdminDashboardView(java.util.HashMap<String, Object> userData) {
         initComponents();
-        this.user = user;
-        this.users = users;
-        this.hospitalizations = hospitalizations;
-        this.appointments = appointments;
+        this.userData = userData;
         this.adminController = new AdminController();
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
@@ -476,12 +470,12 @@ public class AdminDashboardView extends javax.swing.JFrame implements DataObserv
         }
         try {
             long idDoctor = Long.parseLong(selectedItem);
-            Doctor temp = adminController.findDoctorById(idDoctor);
+            java.util.HashMap<String, Object> temp = adminController.findDoctorDataById(idDoctor);
             if (temp == null) {
                 JOptionPane.showMessageDialog(this, "Doctor no encontrado.", "Error", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            DoctorDashboardView doctor = new DoctorDashboardView(user, temp, users, hospitalizations, appointments);
+            DoctorDashboardView doctor = new DoctorDashboardView(this.userData, temp);
             this.setVisible(false);
             doctor.setVisible(true);
         } catch (NumberFormatException e) {
@@ -504,12 +498,12 @@ public class AdminDashboardView extends javax.swing.JFrame implements DataObserv
         }
         try {
             long idPatient = Long.parseLong(selectedItem);
-            Patient temp = adminController.findPatientById(idPatient);
+            java.util.HashMap<String, Object> temp = adminController.findPatientDataById(idPatient);
             if (temp == null) {
                 JOptionPane.showMessageDialog(this, "Paciente no encontrado.", "Error", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            PatientDashboardView patient = new PatientDashboardView(user, temp, users, appointments, hospitalizations);
+            PatientDashboardView patient = new PatientDashboardView(this.userData, temp);
             this.setVisible(false);
             patient.setVisible(true);
         } catch (NumberFormatException e) {
@@ -522,16 +516,16 @@ public class AdminDashboardView extends javax.swing.JFrame implements DataObserv
     private void populateDoctorCombo() {
         cmbNavDoctor.removeAllItems();
         cmbNavDoctor.addItem("Select one");
-        for (Doctor d : adminController.getDoctors()) {
-            cmbNavDoctor.addItem(String.valueOf(d.getId()));
+        for (java.util.HashMap<String, Object> d : adminController.getSerializedDoctors()) {
+            cmbNavDoctor.addItem(String.valueOf(d.get("id")));
         }
     }
 
     private void populatePatientCombo() {
         cmbNavPatient.removeAllItems();
         cmbNavPatient.addItem("Select one");
-        for (Patient p : adminController.getPatients()) {
-            cmbNavPatient.addItem(String.valueOf(p.getId()));
+        for (java.util.HashMap<String, Object> p : adminController.getSerializedPatients()) {
+            cmbNavPatient.addItem(String.valueOf(p.get("id")));
         }
     }
 
