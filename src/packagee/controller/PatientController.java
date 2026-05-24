@@ -26,6 +26,10 @@ public class PatientController {
             String phoneStr, String address, String username,
             String password, String confirm) {
         Patient patient = loginCtrl.findPatientById(patientId);
+        if (patient == null) {
+            return packagee.response.ServiceResponse.notFound(
+                    "Paciente no encontrado con ID: " + patientId);
+        }
         return loginCtrl.getUserService().updatePatient(
                 patient, firstname, lastname, email, birthdateStr, genderStr,
                 phoneStr, address, username, password, confirm,

@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import packagee.*;
 import packagee.observer.DataSubject;
+import packagee.util.JsonPathUtil;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -170,12 +171,12 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
     // ── I/O ───────────────────────────────────────────────────────────────────
 
     private String readFile(String relativePath) throws IOException {
-        Path path = Paths.get(relativePath);
+        Path path = JsonPathUtil.resolve(relativePath);
         return Files.readString(path, StandardCharsets.UTF_8);
     }
 
     private void writeFile(String relativePath, String content) throws IOException {
-        Path path = Paths.get(relativePath);
+        Path path = JsonPathUtil.resolve(relativePath);
         Files.writeString(path, content, StandardCharsets.UTF_8);
     }
 }

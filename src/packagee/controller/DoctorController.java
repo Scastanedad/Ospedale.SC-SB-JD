@@ -17,6 +17,10 @@ public class DoctorController {
             String specialtyStr, String licenseNumber, String assignedOffice,
             String username, String password, String confirm) {
         Doctor doctor = loginCtrl.findDoctorById(doctorId);
+        if (doctor == null) {
+            return packagee.response.ServiceResponse.notFound(
+                    "Doctor no encontrado con ID: " + doctorId);
+        }
         return loginCtrl.getUserService().updateDoctor(
                 doctor, firstname, lastname, specialtyStr, licenseNumber, assignedOffice,
                 username, password, confirm, loginCtrl.getUsers());

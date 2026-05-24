@@ -77,9 +77,11 @@ public class LoginController {
      */
     public ServiceResponse login(String username, String password) {
         ServiceResponse response = authService.login(username, password, users);
-        if (response.isSuccess() && response.getData() instanceof User) {
-            User u = (User) response.getData();
-            return ServiceResponse.ok(response.getMessage(), u.serialize());
+        if (response.isSuccess()) {
+            // Persistir cualquier migración de contraseña legacy que haya
+            // ocurrido en AuthService (plain text → SHA-256 hash).
+            // Si no hubo migración, saveAll() es idempotente.
+            userRepo.saveAll(users);
         }
         return response;
     }

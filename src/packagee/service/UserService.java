@@ -3,6 +3,7 @@ package packagee.service;
 import packagee.*;
 import packagee.repository.IUserRepository;
 import packagee.response.ServiceResponse;
+import packagee.util.PasswordUtil;
 import packagee.util.Validator;
 
 import java.time.LocalDate;
@@ -70,7 +71,9 @@ public class UserService implements IUserService {
             return ServiceResponse.badRequest("Fecha inválida: " + birthdateStr);
         }
 
-        Patient patient = new Patient(id, username, firstname, lastname, password, email, birthdate, gender, phone, address);
+        // Hashear la contraseña antes de crear el objeto — nunca almacenar texto plano
+        String hashedPassword = PasswordUtil.hash(password);
+        Patient patient = new Patient(id, username, firstname, lastname, hashedPassword, email, birthdate, gender, phone, address);
         users.add(patient);
         userRepo.saveAll(users);
 
@@ -117,7 +120,9 @@ public class UserService implements IUserService {
             return ServiceResponse.badRequest("Especialidad inválida: " + specialtyStr);
         }
 
-        Doctor doctor = new Doctor(id, username, firstname, lastname, password, specialty, licenseNumber, assignedOffice);
+        // Hashear la contraseña antes de crear el objeto — nunca almacenar texto plano
+        String hashedPassword = PasswordUtil.hash(password);
+        Doctor doctor = new Doctor(id, username, firstname, lastname, hashedPassword, specialty, licenseNumber, assignedOffice);
         users.add(doctor);
         userRepo.saveAll(users);
 
@@ -164,7 +169,8 @@ public class UserService implements IUserService {
         patient.setPhone(Long.parseLong(phoneStr));
         patient.setAddress(address);
         patient.setUsername(username);
-        patient.setPassword(password);
+        // Hashear la contraseña nueva antes de persistir
+        patient.setPassword(PasswordUtil.hash(password));
 
         userRepo.saveAll(users);
         return ServiceResponse.ok("Paciente actualizado exitosamente.");
@@ -210,7 +216,8 @@ public class UserService implements IUserService {
         doctor.setLicenceNumber(licenseNumber);
         doctor.setAssignedOffice(assignedOffice);
         doctor.setUsername(username);
-        doctor.setPassword(password);
+        // Hashear la contraseña nueva antes de persistir
+        doctor.setPassword(PasswordUtil.hash(password));
 
         userRepo.saveAll(users);
         return ServiceResponse.ok("Doctor actualizado exitosamente.");
