@@ -794,9 +794,12 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         String idAppointment = cmbCancelAppt.getItemAt(cmbCancelAppt.getSelectedIndex());
         ServiceResponse response = patientController.cancelAppointment(idAppointment);
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Cita" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Cita", JOptionPane.INFORMATION_MESSAGE);
+            if(cmbCancelAppt.getItemCount() > 0) cmbCancelAppt.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton9ActionPerformed
@@ -815,9 +818,21 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
                 txtModPassword.getText().trim(),
                 txtModConfirm.getText().trim()
         );
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Actualizar" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Actualizar", JOptionPane.INFORMATION_MESSAGE);
+            txtModFirstname.setText("");
+            txtModLastname.setText("");
+            txtModEmail.setText("");
+            txtModBirthdate.setText("");
+            txtModPhone.setText("");
+            txtModAddress.setText("");
+            txtModUsername.setText("");
+            txtModPassword.setText("");
+            txtModConfirm.setText("");
+            cmbModGender.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
@@ -895,9 +910,16 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
 
         ServiceResponse response = patientController.requestAppointment(
                 patient, doctor, dateStr, timeStr, reason, typeStr);
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Cita" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Cita", JOptionPane.INFORMATION_MESSAGE);
+            txtApptDate.setText("");
+            txtApptTime.setText("");
+            txtApptReason.setText("");
+            cmbApptType.setSelectedIndex(0);
+            if(cmbApptDoctorSpec.getItemCount() > 0) cmbApptDoctorSpec.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
 
@@ -921,9 +943,16 @@ public class PatientDashboardView extends javax.swing.JFrame implements DataObse
 
         ServiceResponse response = patientController.requestHospitalization(
                 patient, doc, dateStr, reason, roomTypeStr, observations);
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Hospitalización" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Hospitalización", JOptionPane.INFORMATION_MESSAGE);
+            txtHospReason.setText("");
+            txtHospDate.setText("");
+            txtHospObs.setText("");
+            if(cmbHospDoctor.getItemCount() > 0) cmbHospDoctor.setSelectedIndex(0);
+            if(cmbHospRoom.getItemCount() > 0) cmbHospRoom.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
 
     // ── Métodos helper ─────────────────────────────────────────────────────

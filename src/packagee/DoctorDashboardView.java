@@ -1162,9 +1162,19 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
                 txtModPassword.getText().trim(),
                 txtModConfirm.getText().trim()
         );
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Actualizar" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Actualizar", JOptionPane.INFORMATION_MESSAGE);
+            txtModFirstname.setText("");
+            txtModLastname.setText("");
+            txtModOffice.setText("");
+            jTextField8.setText("");
+            jTextField7.setText("");
+            txtModPassword.setText("");
+            txtModConfirm.setText("");
+            if(cmbActionAppt.getItemCount() > 0) cmbActionAppt.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton12ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton12ActionPerformed
@@ -1184,9 +1194,12 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         if (jRadioButton5.isSelected()) {
             String hospId = String.valueOf(cmbModSpecialty.getSelectedItem());
             ServiceResponse response = doctorController.cancelHospitalization(hospId);
-            JOptionPane.showMessageDialog(this, response.getMessage(),
-                    response.isSuccess() ? "Hospitalización" : "Error",
-                    response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+            if (response.isSuccess()) {
+                JOptionPane.showMessageDialog(this, response.getMessage(), "Hospitalización", JOptionPane.INFORMATION_MESSAGE);
+                if(cmbModSpecialty.getItemCount() > 0) cmbModSpecialty.setSelectedIndex(0);
+            } else {
+                JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_jButton13ActionPerformed
 
@@ -1207,9 +1220,15 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
 
             ServiceResponse response = doctorController.createHospitalization(
                     targetPatient, doctor, dateStr, reason, roomTypeStr, observations);
-            JOptionPane.showMessageDialog(this, response.getMessage(),
-                    response.isSuccess() ? "Hospitalización" : "Error",
-                    response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+            if (response.isSuccess()) {
+                JOptionPane.showMessageDialog(this, response.getMessage(), "Hospitalización", JOptionPane.INFORMATION_MESSAGE);
+                jTextField21.setText("");
+                jTextArea9.setText("");
+                txtCompleteDiag.setText("");
+                if(cmbHospPatient.getItemCount() > 0) cmbHospPatient.setSelectedIndex(0);
+            } else {
+                JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -1254,9 +1273,12 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         // Aceptar cita (REQUESTED → PENDING)
         String idAppointment = cmbActionFilter.getItemAt(cmbActionFilter.getSelectedIndex());
         ServiceResponse response = doctorController.acceptAppointment(idAppointment);
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Cita" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Cita", JOptionPane.INFORMATION_MESSAGE);
+            if(cmbActionFilter.getItemCount() > 0) cmbActionFilter.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
@@ -1268,9 +1290,16 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         String followUp = jTextArea8.getText().trim();
         ServiceResponse response = doctorController.completeAppointment(
                 idAppointment, diagnosis, observations, recommendedTrea, followUp);
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Cita Completada" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Cita Completada", JOptionPane.INFORMATION_MESSAGE);
+            txtCompleteDiag.setText("");
+            txtCompleteObs.setText("");
+            jTextArea7.setText("");
+            jTextArea8.setText("");
+            if(cmbCancelApptId.getItemCount() > 0) cmbCancelApptId.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void jButton10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton10ActionPerformed
@@ -1299,9 +1328,18 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
                 administrationRoute, durationStr, additionalInfo, frecuencyStr
             });
         }
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Prescripción" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Prescripción", JOptionPane.INFORMATION_MESSAGE);
+            jTextField24.setText("");
+            jTextField25.setText("");
+            jTextField26.setText("");
+            jTextField28.setText("");
+            jTextField29.setText("");
+            jTextField27.setText("");
+            if(cmbPrescribeAppt.getItemCount() > 0) cmbPrescribeAppt.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
@@ -1310,9 +1348,14 @@ public class DoctorDashboardView extends javax.swing.JFrame implements DataObser
         String newTimeStr = txtRescheduleTime.getText().trim();
         String reason = jTextField14.getText().trim();
         ServiceResponse response = doctorController.rescheduleAppointment(appointmentId, newTimeStr, reason);
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Reagendado" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Reagendado", JOptionPane.INFORMATION_MESSAGE);
+            txtRescheduleTime.setText("");
+            jTextField14.setText("");
+            if(cmbCompleteAppt.getItemCount() > 0) cmbCompleteAppt.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton4ActionPerformed
     // ── Métodos helper — poblar ComboBoxes ────────────────────────────────────
 

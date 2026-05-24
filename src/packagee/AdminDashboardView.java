@@ -451,9 +451,20 @@ public class AdminDashboardView extends javax.swing.JFrame implements DataObserv
                 txtRegLicense.getText().trim(),   // licenseNumber
                 txtRegOffice.getText().trim()    // assignedOffice
         );
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Registro" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Registro", JOptionPane.INFORMATION_MESSAGE);
+            txtRegId.setText("");
+            txtRegUsername.setText("");
+            txtRegFirstname.setText("");
+            txtRegLastname.setText("");
+            txtRegPassword.setText("");
+            txtRegConfirm.setText("");
+            txtRegLicense.setText("");
+            txtRegOffice.setText("");
+            cmbSpecialty.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed

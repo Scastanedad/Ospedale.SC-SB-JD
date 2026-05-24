@@ -457,9 +457,22 @@ public class LoginView extends javax.swing.JFrame {
                 txtRegPhone.getText().trim(),   // phone
                 txtRegAddress.getText().trim()   // address
         );
-        JOptionPane.showMessageDialog(this, response.getMessage(),
-                response.isSuccess() ? "Registro" : "Error",
-                response.isSuccess() ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+        if (response.isSuccess()) {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Registro", JOptionPane.INFORMATION_MESSAGE);
+            txtRegId.setText("");
+            txtRegUsername.setText("");
+            txtRegFirstname.setText("");
+            txtRegLastname.setText("");
+            txtRegPassword.setText("");
+            txtRegConfirm.setText("");
+            txtRegEmail.setText("");
+            txtRegBirthdate.setText("");
+            txtRegPhone.setText("");
+            txtRegAddress.setText("");
+            cmbRegGender.setSelectedIndex(0);
+        } else {
+            JOptionPane.showMessageDialog(this, response.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jTextField10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField10ActionPerformed
