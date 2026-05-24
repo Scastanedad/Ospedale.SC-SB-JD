@@ -1,7 +1,7 @@
 package packagee.service;
 
 import packagee.*;
-import packagee.repository.AppointmentRepository;
+import packagee.repository.IAppointmentRepository;
 import packagee.response.ServiceResponse;
 import packagee.util.Validator;
 
@@ -17,11 +17,11 @@ import java.util.UUID;
  *
  * Las vistas NUNCA manipulan Appointment directamente.
  */
-public class AppointmentService {
+public class AppointmentService implements IAppointmentService {
 
-    private final AppointmentRepository appointmentRepo;
+    private final IAppointmentRepository appointmentRepo;
 
-    public AppointmentService(AppointmentRepository appointmentRepo) {
+    public AppointmentService(IAppointmentRepository appointmentRepo) {
         this.appointmentRepo = appointmentRepo;
     }
 

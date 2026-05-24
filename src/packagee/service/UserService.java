@@ -1,7 +1,7 @@
 package packagee.service;
 
 import packagee.*;
-import packagee.repository.UserRepository;
+import packagee.repository.IUserRepository;
 import packagee.response.ServiceResponse;
 import packagee.util.Validator;
 
@@ -14,11 +14,11 @@ import java.util.ArrayList;
  * Contiene reglas de negocio para registrar y actualizar pacientes y doctores.
  * Persiste cambios via UserRepository.
  */
-public class UserService {
+public class UserService implements IUserService {
 
-    private final UserRepository userRepo;
+    private final IUserRepository userRepo;
 
-    public UserService(UserRepository userRepo) {
+    public UserService(IUserRepository userRepo) {
         this.userRepo = userRepo;
     }
 

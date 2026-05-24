@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Las relaciones Patient/Doctor se resuelven por ID usando la lista de usuarios.
  * Se llama notifyObservers("APPOINTMENT") en cada escritura.
  */
-public class AppointmentRepository extends DataSubject {
+public class AppointmentRepository extends DataSubject implements IAppointmentRepository {
 
     private static final String JSON_PATH = "json/appointments.json";
 

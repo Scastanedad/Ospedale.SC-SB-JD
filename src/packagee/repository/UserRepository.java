@@ -19,7 +19,7 @@ import java.util.ArrayList;
  *
  * Notifica observers al modificar datos (patrón Observer).
  */
-public class UserRepository extends DataSubject {
+public class UserRepository extends DataSubject implements IUserRepository {
 
     private static final String JSON_PATH = "json/users.json";
 

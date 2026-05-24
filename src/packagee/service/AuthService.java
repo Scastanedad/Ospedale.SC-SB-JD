@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Valida credenciales y retorna respuesta serializada con el usuario encontrado.
  * Las vistas NUNCA reciben el User directamente — reciben ServiceResponse.
  */
-public class AuthService {
+public class AuthService implements IAuthService {
 
     /**
      * Intenta autenticar al usuario.

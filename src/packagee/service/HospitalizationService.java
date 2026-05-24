@@ -1,7 +1,7 @@
 package packagee.service;
 
 import packagee.*;
-import packagee.repository.HospitalizationRepository;
+import packagee.repository.IHospitalizationRepository;
 import packagee.response.ServiceResponse;
 import packagee.util.Validator;
 
@@ -13,11 +13,11 @@ import java.util.UUID;
  * Servicio de hospitalizaciones.
  * Gestiona solicitar y cancelar hospitalizaciones.
  */
-public class HospitalizationService {
+public class HospitalizationService implements IHospitalizationService {
 
-    private final HospitalizationRepository hospitalizationRepo;
+    private final IHospitalizationRepository hospitalizationRepo;
 
-    public HospitalizationService(HospitalizationRepository hospitalizationRepo) {
+    public HospitalizationService(IHospitalizationRepository hospitalizationRepo) {
         this.hospitalizationRepo = hospitalizationRepo;
     }
 

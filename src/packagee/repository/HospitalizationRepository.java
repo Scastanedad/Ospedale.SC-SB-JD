@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Resuelve relaciones Patient/Doctor por ID.
  * Singleton. Notifica observers al guardar.
  */
-public class HospitalizationRepository extends DataSubject {
+public class HospitalizationRepository extends DataSubject implements IHospitalizationRepository {
 
     private static final String JSON_PATH = "json/hospitalizations.json";
 

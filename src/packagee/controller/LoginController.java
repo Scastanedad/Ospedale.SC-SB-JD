@@ -3,10 +3,7 @@ package packagee.controller;
 import packagee.*;
 import packagee.repository.*;
 import packagee.response.ServiceResponse;
-import packagee.service.AuthService;
-import packagee.service.AppointmentService;
-import packagee.service.HospitalizationService;
-import packagee.service.UserService;
+import packagee.service.*;
 
 import java.util.ArrayList;
 
@@ -21,9 +18,9 @@ import java.util.ArrayList;
 public class LoginController {
 
     // ── Repositorios (singletons) ──────────────────────────────────────────────
-    private final UserRepository userRepo;
-    private final AppointmentRepository appointmentRepo;
-    private final HospitalizationRepository hospitalizationRepo;
+    private final IUserRepository userRepo;
+    private final IAppointmentRepository appointmentRepo;
+    private final IHospitalizationRepository hospitalizationRepo;
 
     // ── Datos en memoria ───────────────────────────────────────────────────────
     private ArrayList<User> users;
@@ -31,10 +28,10 @@ public class LoginController {
     private ArrayList<Hospitalization> hospitalizations;
 
     // ── Servicios ──────────────────────────────────────────────────────────────
-    private final AuthService authService;
-    private final UserService userService;
-    private final AppointmentService appointmentService;
-    private final HospitalizationService hospitalizationService;
+    private final IAuthService authService;
+    private final IUserService userService;
+    private final IAppointmentService appointmentService;
+    private final IHospitalizationService hospitalizationService;
 
     // ── Singleton del controlador ─────────────────────────────────────────────
     private static LoginController instance;
@@ -111,12 +108,12 @@ public class LoginController {
     public ArrayList<User> getUsers() { return users; }
     public ArrayList<Appointment> getAppointments() { return appointments; }
     public ArrayList<Hospitalization> getHospitalizations() { return hospitalizations; }
-    public UserRepository getUserRepo() { return userRepo; }
-    public AppointmentRepository getAppointmentRepo() { return appointmentRepo; }
-    public HospitalizationRepository getHospitalizationRepo() { return hospitalizationRepo; }
-    public UserService getUserService() { return userService; }
-    public AppointmentService getAppointmentService() { return appointmentService; }
-    public HospitalizationService getHospitalizationService() { return hospitalizationService; }
+    public IUserRepository getUserRepo() { return userRepo; }
+    public IAppointmentRepository getAppointmentRepo() { return appointmentRepo; }
+    public IHospitalizationRepository getHospitalizationRepo() { return hospitalizationRepo; }
+    public IUserService getUserService() { return userService; }
+    public IAppointmentService getAppointmentService() { return appointmentService; }
+    public IHospitalizationService getHospitalizationService() { return hospitalizationService; }
 
     // ── Búsqueda centralizada de usuarios ────────────────────────────────────
     // Punto único de búsqueda para evitar duplicación en los controladores hijos.
