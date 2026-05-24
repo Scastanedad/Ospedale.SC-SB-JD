@@ -17,12 +17,12 @@ import packagee.response.ServiceResponse;
  * @author jjlora
  * @author edangulo
  */
-public class NewJFrame extends javax.swing.JFrame {
+public class LoginView extends javax.swing.JFrame {
 
     private int x, y;
     private final LoginController loginController;
 
-    public NewJFrame() {
+    public LoginView() {
         initComponents();
         this.setBackground(new Color(0, 0, 0, 0));
         this.setLocationRelativeTo(null);
@@ -429,13 +429,13 @@ public class NewJFrame extends javax.swing.JFrame {
 
         this.setVisible(false);
         if (selectedUser instanceof Administrator) {
-            NewJFrame11 admin = new NewJFrame11(selectedUser, users, hospitalizations, appointments);
+            AdminDashboardView admin = new AdminDashboardView(selectedUser, users, hospitalizations, appointments);
             admin.setVisible(true);
         } else if (selectedUser instanceof Doctor) {
-            NewJFrame111 doctor = new NewJFrame111(selectedUser, (Doctor) selectedUser, users, hospitalizations, appointments);
+            DoctorDashboardView doctor = new DoctorDashboardView(selectedUser, (Doctor) selectedUser, users, hospitalizations, appointments);
             doctor.setVisible(true);
         } else {
-            NewJFrame1 patient = new NewJFrame1(selectedUser, (Patient) selectedUser, users, appointments, hospitalizations);
+            PatientDashboardView patient = new PatientDashboardView(selectedUser, (Patient) selectedUser, users, appointments, hospitalizations);
             patient.setVisible(true);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -479,7 +479,7 @@ public class NewJFrame extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new NewJFrame().setVisible(true);
+                new LoginView().setVisible(true);
             }
         });
     }

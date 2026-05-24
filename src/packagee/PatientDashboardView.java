@@ -17,7 +17,7 @@ import packagee.response.ServiceResponse;
  * @author jjlora
  * @author edangulo
  */
-public class NewJFrame1 extends javax.swing.JFrame implements DataObserver {
+public class PatientDashboardView extends javax.swing.JFrame implements DataObserver {
 
     private int x, y;
     private ArrayList<User> users;
@@ -27,7 +27,7 @@ public class NewJFrame1 extends javax.swing.JFrame implements DataObserver {
     private Patient patient;
     private final PatientController patientController;
 
-    public NewJFrame1(User user, Patient patient, ArrayList<User> users, ArrayList<Appointment> appointments, ArrayList<Hospitalization> hospitalizations) {
+    public PatientDashboardView(User user, Patient patient, ArrayList<User> users, ArrayList<Appointment> appointments, ArrayList<Hospitalization> hospitalizations) {
         initComponents();
         this.user = user;
         this.patient = patient;
@@ -818,13 +818,13 @@ public class NewJFrame1 extends javax.swing.JFrame implements DataObserver {
     }//GEN-LAST:event_jButton9ActionPerformed
 
     private void jButton8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton8ActionPerformed
-        NewJFrame login = new NewJFrame();
+        LoginView login = new LoginView();
         this.setVisible(false);
         login.setVisible(true);
     }//GEN-LAST:event_jButton8ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        NewJFrame11 admin = new NewJFrame11(user, users,hospitalizations, appointments);
+        AdminDashboardView admin = new AdminDashboardView(user, users, hospitalizations, appointments);
         this.setVisible(false);
         admin.setVisible(true);
     }//GEN-LAST:event_jButton7ActionPerformed
