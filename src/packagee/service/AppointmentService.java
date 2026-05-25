@@ -11,12 +11,6 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
-/**
- * Servicio de citas médicas.
- * Contiene toda la lógica de negocio para el ciclo de vida de citas.
- *
- * Las vistas NUNCA manipulan Appointment directamente.
- */
 public class AppointmentService implements IAppointmentService {
 
     private final IAppointmentRepository appointmentRepo;
@@ -25,20 +19,6 @@ public class AppointmentService implements IAppointmentService {
         this.appointmentRepo = appointmentRepo;
     }
 
-    // ── Crear cita ────────────────────────────────────────────────────────────
-
-    /**
-     * El paciente solicita una nueva cita médica.
-     * Estado inicial: REQUESTED.
-     *
-     * @param patient  paciente que solicita
-     * @param doctor   doctor asignado (puede venir por especialidad o por nombre)
-     * @param dateStr  fecha AAAA-MM-DD
-     * @param timeStr  hora hh:mm (minutos: 00, 15, 30, 45)
-     * @param reason   motivo de la cita
-     * @param typeStr  "Remote" o "In-person"
-     * @param appointments lista en memoria
-     */
     public ServiceResponse createAppointment(
             Patient patient, Doctor doctor,
             String dateStr, String timeStr, String reason, String typeStr,
@@ -57,7 +37,6 @@ public class AppointmentService implements IAppointmentService {
         LocalTime time = LocalTime.parse(timeStr);
         LocalDateTime datetime = LocalDateTime.of(date, time);
 
-        // Verificar disponibilidad del doctor en ese horario
         for (Appointment existing : doctor.getAppointments()) {
             if (existing.getDatetime().equals(datetime)
                     && existing.getStatus() != AppointmentStatus.CANCELED) {
@@ -77,11 +56,6 @@ public class AppointmentService implements IAppointmentService {
         return ServiceResponse.ok("Cita solicitada exitosamente con ID: " + id);
     }
 
-    // ── Aceptar cita ──────────────────────────────────────────────────────────
-
-    /**
-     * El doctor acepta una cita → REQUESTED → PENDING.
-     */
     public ServiceResponse acceptAppointment(String appointmentId, ArrayList<Appointment> appointments) {
         Appointment appointment = findById(appointmentId, appointments);
         if (appointment == null)
@@ -94,12 +68,6 @@ public class AppointmentService implements IAppointmentService {
         return ServiceResponse.ok("Cita aceptada. Estado: PENDING");
     }
 
-    // ── Completar cita ────────────────────────────────────────────────────────
-
-    /**
-     * El doctor completa una cita → PENDING → COMPLETED.
-     * Registra diagnóstico, observaciones, tratamiento y seguimiento.
-     */
     public ServiceResponse completeAppointment(
             String appointmentId, String diagnosis, String observations,
             String recommendedTreatment, String followUp,
@@ -123,12 +91,6 @@ public class AppointmentService implements IAppointmentService {
         return ServiceResponse.ok("Cita completada exitosamente.");
     }
 
-    // ── Cancelar cita ─────────────────────────────────────────────────────────
-
-    /**
-     * Cancela una cita. Puede ser solicitado por paciente o doctor.
-     * No se pueden cancelar citas ya COMPLETED.
-     */
     public ServiceResponse cancelAppointment(String appointmentId, ArrayList<Appointment> appointments) {
         Appointment appointment = findById(appointmentId, appointments);
         if (appointment == null)
@@ -143,12 +105,6 @@ public class AppointmentService implements IAppointmentService {
         return ServiceResponse.ok("Cita cancelada.");
     }
 
-    // ── Reagendar cita ────────────────────────────────────────────────────────
-
-    /**
-     * El doctor reagenda una cita (REQUESTED o PENDING) a una nueva fecha/hora.
-     * Fix: crea nuevo LocalDateTime (inmutable).
-     */
     public ServiceResponse rescheduleAppointment(
             String appointmentId, String newTimeStr, String reason,
             ArrayList<Appointment> appointments) {
@@ -163,7 +119,6 @@ public class AppointmentService implements IAppointmentService {
             return ServiceResponse.badRequest("No se puede reagendar una cita en estado " + appointment.getStatus());
 
         LocalTime newTime = LocalTime.parse(newTimeStr);
-        // Crear nuevo LocalDateTime (LocalDateTime es inmutable — fix del bug original)
         LocalDateTime newDatetime = LocalDateTime.of(appointment.getDatetime().toLocalDate(), newTime);
         appointment.setDatetime(newDatetime);
         if (Validator.notBlank(reason)) appointment.setReason(reason);
@@ -172,11 +127,6 @@ public class AppointmentService implements IAppointmentService {
         return ServiceResponse.ok("Cita reagendada a " + newDatetime);
     }
 
-    // ── Prescribir medicamento ────────────────────────────────────────────────
-
-    /**
-     * Agrega una prescripción a una cita completada o pendiente.
-     */
     public ServiceResponse prescribe(
             String appointmentId, String medicationName, String doseStr,
             String administrationRoute, String durationStr,
@@ -191,6 +141,9 @@ public class AppointmentService implements IAppointmentService {
         Appointment appointment = findById(appointmentId, appointments);
         if (appointment == null)
             return ServiceResponse.notFound("Cita no encontrada: " + appointmentId);
+            
+        if (appointment.getStatus() != AppointmentStatus.PENDING)
+            return ServiceResponse.badRequest("Solo se pueden prescribir medicamentos si la cita ha sido aceptada (PENDING).");
 
         double dose;
         int duration, frecuency;
@@ -209,8 +162,6 @@ public class AppointmentService implements IAppointmentService {
         appointmentRepo.saveAll(appointments);
         return ServiceResponse.ok("Prescripción agregada.");
     }
-
-    // ── Helper ────────────────────────────────────────────────────────────────
 
     public Appointment findById(String id, ArrayList<Appointment> appointments) {
         for (Appointment a : appointments) {

@@ -12,12 +12,6 @@ import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-/**
- * Repositorio de hospitalizaciones — carga y guarda hospitalizations.json.
- *
- * Resuelve relaciones Patient/Doctor por ID.
- * Singleton. Notifica observers al guardar.
- */
 public class HospitalizationRepository extends DataSubject implements IHospitalizationRepository {
 
     private static final String JSON_PATH = "json/hospitalizations.json";
@@ -33,11 +27,6 @@ public class HospitalizationRepository extends DataSubject implements IHospitali
 
     private HospitalizationRepository() {}
 
-    // ── Carga ─────────────────────────────────────────────────────────────────
-
-    /**
-     * Carga todas las hospitalizaciones y resuelve relaciones con usuarios.
-     */
     public ArrayList<Hospitalization> loadAll(ArrayList<User> users) {
         ArrayList<Hospitalization> hospitalizations = new ArrayList<>();
         try {
@@ -58,11 +47,6 @@ public class HospitalizationRepository extends DataSubject implements IHospitali
         return hospitalizations;
     }
 
-    // ── Guardado ──────────────────────────────────────────────────────────────
-
-    /**
-     * Persiste la lista completa en hospitalizations.json.
-     */
     public void saveAll(ArrayList<Hospitalization> hospitalizations) {
         try {
             JSONArray arr = new JSONArray();
@@ -77,8 +61,6 @@ public class HospitalizationRepository extends DataSubject implements IHospitali
             System.err.println("[HospitalizationRepository] Error guardando hospitalizations.json: " + e.getMessage());
         }
     }
-
-    // ── Parser ────────────────────────────────────────────────────────────────
 
     private Hospitalization parseHospitalization(JSONObject obj, ArrayList<User> users) {
         try {
@@ -103,8 +85,6 @@ public class HospitalizationRepository extends DataSubject implements IHospitali
         }
     }
 
-    // ── Serializer ────────────────────────────────────────────────────────────
-
     private JSONObject serializeHospitalization(Hospitalization h) {
         JSONObject obj = new JSONObject();
         obj.put("id", h.getId());
@@ -117,8 +97,6 @@ public class HospitalizationRepository extends DataSubject implements IHospitali
         obj.put("status", h.getStatus().name());
         return obj;
     }
-
-    // ── Búsqueda ──────────────────────────────────────────────────────────────
 
     private Patient findPatient(long id, ArrayList<User> users) {
         for (User u : users) {
@@ -133,8 +111,6 @@ public class HospitalizationRepository extends DataSubject implements IHospitali
         }
         return null;
     }
-
-    // ── I/O ───────────────────────────────────────────────────────────────────
 
     private String readFile(String relativePath) throws IOException {
         Path path = JsonPathUtil.resolve(relativePath);

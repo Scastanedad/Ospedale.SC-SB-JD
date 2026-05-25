@@ -12,19 +12,10 @@ import java.nio.file.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-/**
- * Repositorio de usuarios — carga y guarda users.json.
- *
- * Ruta JSON: json/users.json relativa al directorio de trabajo (raíz del proyecto).
- * Usa org.json incluido en lib/.
- *
- * Notifica observers al modificar datos (patrón Observer).
- */
 public class UserRepository extends DataSubject implements IUserRepository {
 
     private static final String JSON_PATH = "json/users.json";
 
-    // ── Singleton simple (una sola instancia en toda la app) ──────────────────
     private static UserRepository instance;
 
     public static UserRepository getInstance() {
@@ -36,12 +27,6 @@ public class UserRepository extends DataSubject implements IUserRepository {
 
     private UserRepository() {}
 
-    // ── Lectura ───────────────────────────────────────────────────────────────
-
-    /**
-     * Carga todos los usuarios desde users.json.
-     * @return lista de User (Administrator, Doctor, Patient)
-     */
     public ArrayList<User> loadAll() {
         ArrayList<User> users = new ArrayList<>();
         try {
@@ -65,12 +50,6 @@ public class UserRepository extends DataSubject implements IUserRepository {
         return users;
     }
 
-    // ── Escritura ─────────────────────────────────────────────────────────────
-
-    /**
-     * Persiste la lista completa de usuarios en users.json.
-     * Llama notifyObservers("USER") al terminar.
-     */
     public void saveAll(ArrayList<User> users) {
         try {
             JSONArray arr = new JSONArray();
@@ -85,8 +64,6 @@ public class UserRepository extends DataSubject implements IUserRepository {
             System.err.println("[UserRepository] Error guardando users.json: " + e.getMessage());
         }
     }
-
-    // ── Parsers ───────────────────────────────────────────────────────────────
 
     private Administrator parseAdmin(JSONObject obj) {
         return new Administrator(
@@ -115,7 +92,6 @@ public class UserRepository extends DataSubject implements IUserRepository {
     }
 
     private Doctor parseDoctor(JSONObject obj) {
-        // Mapear specialty del JSON (e.g. "CARDIOLOGY") al enum
         String specStr = obj.getString("specialty");
         Specialty specialty = mapSpecialty(specStr);
 
@@ -130,8 +106,6 @@ public class UserRepository extends DataSubject implements IUserRepository {
                 obj.getString("assignedOffice")
         );
     }
-
-    // ── Serializers ───────────────────────────────────────────────────────────
 
     private JSONObject serializeUser(User u) {
         JSONObject obj = new JSONObject();
@@ -159,12 +133,6 @@ public class UserRepository extends DataSubject implements IUserRepository {
         return obj;
     }
 
-    // ── Specialty mapping ─────────────────────────────────────────────────────
-
-    /**
-     * Mapea el string del JSON al enum Specialty.
-     * Compatible con el formato existente en users.json.
-     */
     private Specialty mapSpecialty(String specStr) {
         return switch (specStr.toUpperCase()) {
             case "GENERAL_MEDICINE", "GENERAL MEDICINE" -> Specialty.GENERAL_MEDICINE;
@@ -181,8 +149,6 @@ public class UserRepository extends DataSubject implements IUserRepository {
             default -> Specialty.GENERAL_MEDICINE;
         };
     }
-
-    // ── I/O helpers ───────────────────────────────────────────────────────────
 
     private String readFile(String relativePath) throws IOException {
         Path path = JsonPathUtil.resolve(relativePath);

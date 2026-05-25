@@ -1,15 +1,8 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package packagee;
 
 import java.time.LocalDate;
 
-/**
- *
- * @author edangulo
- */
 public class Hospitalization implements Serializable {
     
     private final String id;

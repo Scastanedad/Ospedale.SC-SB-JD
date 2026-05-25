@@ -12,8 +12,7 @@ public class Main {
         } catch (Exception ex) {
             System.err.println("Failed to initialize LaF");
         }
-        
-        /* Create and display the form */
+
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new LoginView().setVisible(true);

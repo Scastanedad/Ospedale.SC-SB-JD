@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package packagee;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-/**
- *
- * @author edangulo
- */
 public class Patient extends User {
     
     private String email;
@@ -82,7 +75,7 @@ public class Patient extends User {
         java.util.HashMap<String, Object> map = super.serialize();
         map.put("email", this.email);
         if(this.birthdate != null) map.put("birthdate", this.birthdate.toString());
-        map.put("gender", this.gender ? "F" : "M"); // assuming boolean true=F, false=M
+        map.put("gender", this.gender ? "F" : "M");
         map.put("phone", String.valueOf(this.phone));
         map.put("address", this.address);
         return map;

@@ -12,12 +12,6 @@ import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-/**
- * Repositorio de citas — carga y guarda appointments.json.
- *
- * Las relaciones Patient/Doctor se resuelven por ID usando la lista de usuarios.
- * Se llama notifyObservers("APPOINTMENT") en cada escritura.
- */
 public class AppointmentRepository extends DataSubject implements IAppointmentRepository {
 
     private static final String JSON_PATH = "json/appointments.json";
@@ -33,12 +27,6 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
 
     private AppointmentRepository() {}
 
-    // ── Carga ─────────────────────────────────────────────────────────────────
-
-    /**
-     * Carga todas las citas y resuelve relaciones con la lista de usuarios.
-     * @param users lista ya cargada (para resolver patient/doctor por id)
-     */
     public ArrayList<Appointment> loadAll(ArrayList<User> users) {
         ArrayList<Appointment> appointments = new ArrayList<>();
         try {
@@ -51,7 +39,6 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
                 Appointment a = parseAppointment(obj, users);
                 if (a != null) {
                     appointments.add(a);
-                    // Sincronizar con listas internas del patient/doctor
                     linkToUsers(a);
                 }
             }
@@ -61,11 +48,6 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
         return appointments;
     }
 
-    // ── Guardado ──────────────────────────────────────────────────────────────
-
-    /**
-     * Persiste la lista completa de citas en appointments.json.
-     */
     public void saveAll(ArrayList<Appointment> appointments) {
         try {
             JSONArray arr = new JSONArray();
@@ -80,8 +62,6 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
             System.err.println("[AppointmentRepository] Error guardando appointments.json: " + e.getMessage());
         }
     }
-
-    // ── Parser ────────────────────────────────────────────────────────────────
 
     private Appointment parseAppointment(JSONObject obj, ArrayList<User> users) {
         try {
@@ -99,11 +79,9 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
             boolean type = obj.getBoolean("type");
             AppointmentStatus status = AppointmentStatus.valueOf(obj.getString("status"));
 
-            // Usar constructor sin añadir a listas internas (lo haremos en linkToUsers)
             Appointment a = new Appointment(id, patient, doctor, specialty, datetime, reason, type);
             a.setStatus(status);
 
-            // Campos opcionales de completado
             if (obj.has("diagnosis") && !obj.isNull("diagnosis"))
                 a.setDiagnosis(obj.getString("diagnosis"));
             if (obj.has("observations") && !obj.isNull("observations"))
@@ -121,19 +99,15 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
     }
 
     private void linkToUsers(Appointment a) {
-        // Añadir a la lista interna del paciente solo si no está ya
         Patient p = a.getPatient();
         if (p != null && !p.getAppointments().contains(a)) {
             p.getAppointments().add(a);
         }
-        // Añadir a la lista interna del doctor solo si no está ya
         Doctor d = a.getDoctor();
         if (d != null && !d.getAppointments().contains(a)) {
             d.getAppointments().add(a);
         }
     }
-
-    // ── Serializer ────────────────────────────────────────────────────────────
 
     private JSONObject serializeAppointment(Appointment a) {
         JSONObject obj = new JSONObject();
@@ -152,8 +126,6 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
         return obj;
     }
 
-    // ── Búsqueda ──────────────────────────────────────────────────────────────
-
     private Patient findPatient(long id, ArrayList<User> users) {
         for (User u : users) {
             if (u instanceof Patient p && p.getId() == id) return p;
@@ -167,8 +139,6 @@ public class AppointmentRepository extends DataSubject implements IAppointmentRe
         }
         return null;
     }
-
-    // ── I/O ───────────────────────────────────────────────────────────────────
 
     private String readFile(String relativePath) throws IOException {
         Path path = JsonPathUtil.resolve(relativePath);

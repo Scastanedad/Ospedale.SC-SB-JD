@@ -5,10 +5,6 @@ import packagee.response.ServiceResponse;
 
 import java.util.ArrayList;
 
-/**
- * Controlador del panel de Paciente.
- * Coordina actualización de datos, solicitar/cancelar citas y hospitalizaciones.
- */
 public class PatientController {
 
     private final LoginController loginCtrl;
@@ -23,9 +19,6 @@ public class PatientController {
         loginCtrl.getHospitalizationRepo().addObserver(observer);
     }
 
-    /**
-     * Actualiza datos del paciente actual.
-     */
     public ServiceResponse updatePatient(
             long patientId, String firstname, String lastname,
             String email, String birthdateStr, String genderStr,
@@ -97,23 +90,19 @@ public class PatientController {
         return null;
     }
 
-    /**
-     * Retorna todas las citas del paciente de forma serializada.
-     */
     public ArrayList<java.util.HashMap<String, Object>> getSerializedPatientAppointments(long patientId) {
         ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
         Patient patient = loginCtrl.findPatientById(patientId);
         if(patient != null) {
-            for (Appointment a : patient.getAppointments()) {
+            ArrayList<Appointment> sortedAppts = new ArrayList<>(patient.getAppointments());
+            sortedAppts.sort((a, b) -> b.getDatetime().compareTo(a.getDatetime()));
+            for (Appointment a : sortedAppts) {
                 list.add(a.serialize());
             }
         }
         return list;
     }
 
-    /**
-     * Retorna la lista de todos los doctores serializada (para poblar ComboBox).
-     */
     public ArrayList<java.util.HashMap<String, Object>> getSerializedAllDoctors() {
         ArrayList<java.util.HashMap<String, Object>> doctors = new ArrayList<>();
         for (User u : loginCtrl.getUsers()) {
@@ -122,18 +111,12 @@ public class PatientController {
         return doctors;
     }
 
-    /**
-     * Busca un doctor por ID y devuelve datos serializados.
-     */
     public java.util.HashMap<String, Object> findDoctorDataById(long id) {
         Doctor doc = loginCtrl.findDoctorById(id);
         if (doc != null) return doc.serialize();
         return null;
     }
 
-    /**
-     * Busca un paciente por ID y devuelve datos serializados.
-     */
     public java.util.HashMap<String, Object> findPatientDataById(long id) {
         Patient pat = loginCtrl.findPatientById(id);
         if (pat != null) return pat.serialize();

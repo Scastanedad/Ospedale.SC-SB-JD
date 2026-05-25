@@ -7,33 +7,21 @@ import packagee.service.*;
 
 import java.util.ArrayList;
 
-/**
- * Controlador de Login.
- * Punto de entrada de la aplicación.
- * Carga JSON, crea instancias de servicios y coordina la autenticación.
- *
- * Las vistas NO instancian repositorios ni servicios directamente.
- * Solo llaman métodos del controlador y leen ServiceResponse.
- */
 public class LoginController {
 
-    // ── Repositorios (singletons) ──────────────────────────────────────────────
     private final IUserRepository userRepo;
     private final IAppointmentRepository appointmentRepo;
     private final IHospitalizationRepository hospitalizationRepo;
 
-    // ── Datos en memoria ───────────────────────────────────────────────────────
     private ArrayList<User> users;
     private ArrayList<Appointment> appointments;
     private ArrayList<Hospitalization> hospitalizations;
 
-    // ── Servicios ──────────────────────────────────────────────────────────────
     private final IAuthService authService;
     private final IUserService userService;
     private final IAppointmentService appointmentService;
     private final IHospitalizationService hospitalizationService;
 
-    // ── Singleton del controlador ─────────────────────────────────────────────
     private static LoginController instance;
 
     public static LoginController getInstance() {
@@ -53,34 +41,18 @@ public class LoginController {
         this.appointmentService = new AppointmentService(appointmentRepo);
         this.hospitalizationService = new HospitalizationService(hospitalizationRepo);
 
-        // Cargar datos desde JSON al iniciar
         loadData();
     }
 
-    /**
-     * Carga todos los datos desde JSON.
-     * Orden: primero usuarios (dependencia), luego citas y hospitalizaciones.
-     */
     public void loadData() {
         this.users = userRepo.loadAll();
         this.appointments = appointmentRepo.loadAll(users);
         this.hospitalizations = hospitalizationRepo.loadAll(users);
     }
 
-    // ── Login ──────────────────────────────────────────────────────────────────
-
-    /**
-     * Autenticar usuario.
-     * @param username nombre de usuario
-     * @param password contraseña
-     * @return ServiceResponse con data = User autenticado si éxito
-     */
     public ServiceResponse login(String username, String password) {
         ServiceResponse response = authService.login(username, password, users);
         if (response.isSuccess()) {
-            // Persistir cualquier migración de contraseña legacy que haya
-            // ocurrido en AuthService (plain text → SHA-256 hash).
-            // Si no hubo migración, saveAll() es idempotente.
             userRepo.saveAll(users);
         }
         return response;
@@ -92,8 +64,6 @@ public class LoginController {
         return null;
     }
 
-    // ── Registro de paciente (desde LoginView) ────────────────────────────────
-
     public ServiceResponse registerPatient(
             String idStr, String username, String firstname, String lastname,
             String password, String confirm, String email,
@@ -103,9 +73,6 @@ public class LoginController {
                 password, confirm, email, birthdateStr, genderStr, phoneStr, address,
                 users);
     }
-
-    // ── Acceso a datos compartidos ────────────────────────────────────────────
-    // Los demás controladores acceden a estas listas vía LoginController
 
     public ArrayList<User> getUsers() { return users; }
     public ArrayList<Appointment> getAppointments() { return appointments; }
@@ -117,12 +84,6 @@ public class LoginController {
     public IAppointmentService getAppointmentService() { return appointmentService; }
     public IHospitalizationService getHospitalizationService() { return hospitalizationService; }
 
-    // ── Búsqueda centralizada de usuarios ────────────────────────────────────
-    // Punto único de búsqueda para evitar duplicación en los controladores hijos.
-
-    /**
-     * Busca cualquier tipo de usuario (Admin, Doctor, Patient) por su ID.
-     */
     public User findUserById(long id) {
         for (User u : users) {
             if (u.getId() == id) {
@@ -132,11 +93,6 @@ public class LoginController {
         return null;
     }
 
-    /**
-     * Busca un doctor por ID numérico entre todos los usuarios cargados.
-     * @param id identificador numérico del doctor
-     * @return Doctor encontrado, o null si no existe
-     */
     public Doctor findDoctorById(long id) {
         for (User u : users) {
             if (u instanceof Doctor d && d.getId() == id) {
@@ -146,11 +102,6 @@ public class LoginController {
         return null;
     }
 
-    /**
-     * Busca un paciente por ID numérico entre todos los usuarios cargados.
-     * @param id identificador numérico del paciente
-     * @return Patient encontrado, o null si no existe
-     */
     public Patient findPatientById(long id) {
         for (User u : users) {
             if (u instanceof Patient p && p.getId() == id) {
@@ -160,5 +111,4 @@ public class LoginController {
         return null;
     }
 }
-
 

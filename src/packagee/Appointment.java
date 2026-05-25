@@ -1,16 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package packagee;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-/**
- *
- * @author edangulo
- */
 public class Appointment implements Serializable {
 
     private final String id;
@@ -39,8 +32,6 @@ public class Appointment implements Serializable {
         this.prescriptions = new ArrayList<>();
     }
 
-    // ── Setters ───────────────────────────────────────────────────────────────
-
     public void setStatus(AppointmentStatus status) {
         this.status = status;
     }
@@ -65,12 +56,9 @@ public class Appointment implements Serializable {
         this.followUp = followUp;
     }
 
-    /** Setter para reagendar (LocalDateTime es inmutable — siempre usar setter). */
     public void setDatetime(LocalDateTime datetime) {
         this.datetime = datetime;
     }
-
-    // ── Getters ───────────────────────────────────────────────────────────────
 
     public String getId() {
         return id;

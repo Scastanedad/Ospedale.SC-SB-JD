@@ -1,14 +1,6 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Enum.java to edit this template
- */
+
 package packagee;
 
-/**
- * Especialidades médicas disponibles en el sistema.
- *
- * @author edangulo
- */
 public enum Specialty {
 
     GENERAL_MEDICINE,
@@ -23,14 +15,6 @@ public enum Specialty {
     OPHTHALMOLOGY,
     INTERNAL_MEDICINE;
 
-    /**
-     * Convierte un String (nombre del ComboBox o nombre del enum) a Specialty.
-     * Compatible con los valores de los ComboBox de las vistas existentes.
-     *
-     * @param specStr texto que representa la especialidad
-     * @return Specialty correspondiente
-     * @throws IllegalArgumentException si el texto no corresponde a ninguna especialidad
-     */
     public static Specialty parse(String specStr) {
         String normalized = specStr.toUpperCase()
                 .replaceAll("\\s*&\\s*", "_")

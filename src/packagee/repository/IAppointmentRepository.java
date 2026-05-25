@@ -5,10 +5,6 @@ import packagee.Appointment;
 import packagee.User;
 import packagee.observer.DataObserver;
 
-/**
- * Contrato para el repositorio de citas.
- * Principio SOLID: Inversión de Dependencias (DIP).
- */
 public interface IAppointmentRepository {
     ArrayList<Appointment> loadAll(ArrayList<User> users);
     void saveAll(ArrayList<Appointment> appointments);

@@ -4,10 +4,6 @@ import packagee.*;
 import packagee.response.ServiceResponse;
 import java.util.ArrayList;
 
-/**
- * Contrato para el servicio de citas médicas.
- * Principio SOLID: Inversión de Dependencias (DIP).
- */
 public interface IAppointmentService {
     ServiceResponse createAppointment(
             Patient patient, Doctor doctor,

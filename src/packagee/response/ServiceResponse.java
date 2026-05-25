@@ -1,16 +1,5 @@
 package packagee.response;
 
-/**
- * Respuesta serializada estándar que retornan todos los servicios.
- * Las vistas NUNCA reciben modelos directamente — siempre ServiceResponse.
- *
- * statusCode:
- *   200 = éxito
- *   400 = datos inválidos / validación fallida
- *   404 = no encontrado
- *   409 = conflicto (e.g. ID o username ya existe)
- *   500 = error interno
- */
 public class ServiceResponse {
 
     private final boolean success;
@@ -24,8 +13,6 @@ public class ServiceResponse {
         this.statusCode = statusCode;
         this.data = data;
     }
-
-    // ── Constructores de fábrica ───────────────────────────────────────────────
 
     public static ServiceResponse ok(String message, Object data) {
         return new ServiceResponse(true, message, 200, data);
@@ -50,8 +37,6 @@ public class ServiceResponse {
     public static ServiceResponse error(String message) {
         return new ServiceResponse(false, message, 500, null);
     }
-
-    // ── Getters ───────────────────────────────────────────────────────────────
 
     public boolean isSuccess() {
         return success;

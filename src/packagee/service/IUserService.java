@@ -4,10 +4,6 @@ import packagee.*;
 import packagee.response.ServiceResponse;
 import java.util.ArrayList;
 
-/**
- * Contrato para el servicio de usuarios.
- * Principio SOLID: Inversión de Dependencias (DIP).
- */
 public interface IUserService {
     ServiceResponse registerPatient(
             String idStr, String username, String firstname, String lastname,

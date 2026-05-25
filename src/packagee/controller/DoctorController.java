@@ -71,9 +71,15 @@ public class DoctorController {
         Patient patient = loginCtrl.findPatientById(patientId);
         Doctor doctor = loginCtrl.findDoctorById(doctorId);
         if (patient == null) return ServiceResponse.error("Error: Paciente no encontrado.");
-        return loginCtrl.getHospitalizationService().createHospitalization(
+        if (doctor == null) return ServiceResponse.error("Doctor no encontrado.");
+        return loginCtrl.getHospitalizationService().createDoctorHospitalization(
                 patient, doctor, dateStr, reason, roomTypeStr, observations,
                 loginCtrl.getHospitalizations());
+    }
+
+    public ServiceResponse approveHospitalization(String hospId) {
+        return loginCtrl.getHospitalizationService().approveHospitalization(
+                hospId, loginCtrl.getHospitalizations());
     }
 
     public ServiceResponse cancelHospitalization(String hospitalizationId) {
@@ -123,7 +129,9 @@ public class DoctorController {
         Doctor doc = loginCtrl.findDoctorById(doctorId);
         ArrayList<java.util.HashMap<String, Object>> list = new ArrayList<>();
         if (doc != null) {
-            for (Appointment a : doc.getAppointments()) {
+            ArrayList<Appointment> sortedAppts = new ArrayList<>(doc.getAppointments());
+            sortedAppts.sort((a, b) -> b.getDatetime().compareTo(a.getDatetime()));
+            for (Appointment a : sortedAppts) {
                 list.add(a.serialize());
             }
         }

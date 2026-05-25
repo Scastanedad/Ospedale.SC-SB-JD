@@ -10,11 +10,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
-/**
- * Servicio de gestión de usuarios.
- * Contiene reglas de negocio para registrar y actualizar pacientes y doctores.
- * Persiste cambios via UserRepository.
- */
 public class UserService implements IUserService {
 
     private final IUserRepository userRepo;
@@ -23,18 +18,12 @@ public class UserService implements IUserService {
         this.userRepo = userRepo;
     }
 
-    // ── Registro Paciente ─────────────────────────────────────────────────────
-
-    /**
-     * Registra un nuevo paciente con todas las validaciones requeridas.
-     */
     public ServiceResponse registerPatient(
             String idStr, String username, String firstname, String lastname,
             String password, String confirm, String email,
             String birthdateStr, String genderStr, String phoneStr, String address,
             ArrayList<User> users) {
 
-        // Validaciones
         if (!Validator.isValidId(idStr))
             return ServiceResponse.badRequest("El ID debe tener exactamente 12 dígitos.");
         if (!Validator.isValidUsername(username))
@@ -55,7 +44,6 @@ public class UserService implements IUserService {
         long id = Long.parseLong(idStr);
         long phone = Long.parseLong(phoneStr);
 
-        // Unicidad
         for (User u : users) {
             if (u.getId() == id)
                 return ServiceResponse.conflict("Ya existe un usuario con ID " + id + ".");
@@ -71,7 +59,6 @@ public class UserService implements IUserService {
             return ServiceResponse.badRequest("Fecha inválida: " + birthdateStr);
         }
 
-        // Hashear la contraseña antes de crear el objeto — nunca almacenar texto plano
         String hashedPassword = PasswordUtil.hash(password);
         Patient patient = new Patient(id, username, firstname, lastname, hashedPassword, email, birthdate, gender, phone, address);
         users.add(patient);
@@ -80,11 +67,6 @@ public class UserService implements IUserService {
         return ServiceResponse.ok("Paciente registrado exitosamente.");
     }
 
-    // ── Registro Doctor ───────────────────────────────────────────────────────
-
-    /**
-     * Registra un nuevo doctor con validaciones completas.
-     */
     public ServiceResponse registerDoctor(
             String idStr, String username, String firstname, String lastname,
             String password, String confirm, String specialtyStr,
@@ -120,7 +102,6 @@ public class UserService implements IUserService {
             return ServiceResponse.badRequest("Especialidad inválida: " + specialtyStr);
         }
 
-        // Hashear la contraseña antes de crear el objeto — nunca almacenar texto plano
         String hashedPassword = PasswordUtil.hash(password);
         Doctor doctor = new Doctor(id, username, firstname, lastname, hashedPassword, specialty, licenseNumber, assignedOffice);
         users.add(doctor);
@@ -129,11 +110,6 @@ public class UserService implements IUserService {
         return ServiceResponse.ok("Doctor registrado exitosamente.");
     }
 
-    // ── Actualizar Paciente ───────────────────────────────────────────────────
-
-    /**
-     * Actualiza datos de un paciente existente.
-     */
     public ServiceResponse updatePatient(
             Patient patient, String firstname, String lastname,
             String email, String birthdateStr, String genderStr,
@@ -154,7 +130,6 @@ public class UserService implements IUserService {
         if (!Validator.passwordsMatch(password, confirm))
             return ServiceResponse.badRequest("Las contraseñas no coinciden.");
 
-        // Verificar username único (excluyendo al propio usuario)
         for (User u : users) {
             if (u.getId() != patient.getId() && u.getUsername().equals(username))
                 return ServiceResponse.conflict("El username '" + username + "' ya está en uso.");
@@ -169,18 +144,12 @@ public class UserService implements IUserService {
         patient.setPhone(Long.parseLong(phoneStr));
         patient.setAddress(address);
         patient.setUsername(username);
-        // Hashear la contraseña nueva antes de persistir
         patient.setPassword(PasswordUtil.hash(password));
 
         userRepo.saveAll(users);
         return ServiceResponse.ok("Paciente actualizado exitosamente.");
     }
 
-    // ── Actualizar Doctor ─────────────────────────────────────────────────────
-
-    /**
-     * Actualiza datos de un doctor existente.
-     */
     public ServiceResponse updateDoctor(
             Doctor doctor, String firstname, String lastname,
             String specialtyStr, String licenseNumber, String assignedOffice,
@@ -216,7 +185,6 @@ public class UserService implements IUserService {
         doctor.setLicenceNumber(licenseNumber);
         doctor.setAssignedOffice(assignedOffice);
         doctor.setUsername(username);
-        // Hashear la contraseña nueva antes de persistir
         doctor.setPassword(PasswordUtil.hash(password));
 
         userRepo.saveAll(users);

@@ -9,10 +9,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
 
-/**
- * Servicio de hospitalizaciones.
- * Gestiona solicitar y cancelar hospitalizaciones.
- */
 public class HospitalizationService implements IHospitalizationService {
 
     private final IHospitalizationRepository hospitalizationRepo;
@@ -21,20 +17,6 @@ public class HospitalizationService implements IHospitalizationService {
         this.hospitalizationRepo = hospitalizationRepo;
     }
 
-    // ── Solicitar hospitalización ─────────────────────────────────────────────
-
-    /**
-     * Solicita una hospitalización para un paciente.
-     * Estado inicial: REQUESTED.
-     *
-     * @param patient       paciente a hospitalizar
-     * @param doctor        doctor responsable
-     * @param dateStr       fecha estimada de ingreso (AAAA-MM-DD)
-     * @param reason        motivo
-     * @param roomTypeStr   tipo de habitación (enum name)
-     * @param observations  observaciones adicionales
-     * @param hospitalizations lista en memoria
-     */
     public ServiceResponse createHospitalization(
             Patient patient, Doctor doctor,
             String dateStr, String reason, String roomTypeStr, String observations,
@@ -47,7 +29,6 @@ public class HospitalizationService implements IHospitalizationService {
         if (!Validator.notBlank(reason))
             return ServiceResponse.badRequest("El motivo de hospitalización es obligatorio.");
 
-        // Verificar que el paciente no tenga ya una hospitalización activa
         if (patient.getHospitalization() != null) {
             HospitalizationStatus current = patient.getHospitalization().getStatus();
             if (current == HospitalizationStatus.REQUESTED || current == HospitalizationStatus.ONGOING)
@@ -73,12 +54,36 @@ public class HospitalizationService implements IHospitalizationService {
         return ServiceResponse.ok("Hospitalización solicitada con ID: " + id);
     }
 
-    // ── Cancelar hospitalización ──────────────────────────────────────────────
+    public ServiceResponse createDoctorHospitalization(
+            Patient patient, Doctor doctor,
+            String dateStr, String reason, String roomTypeStr, String observations,
+            ArrayList<Hospitalization> hospitalizations) {
 
-    /**
-     * Cancela una hospitalización existente → CANCELED.
-     * No se puede cancelar si ya está CANCELED.
-     */
+        ServiceResponse response = createHospitalization(patient, doctor, dateStr, reason, roomTypeStr, observations, hospitalizations);
+        if (response.isSuccess()) {
+            Hospitalization h = hospitalizations.get(hospitalizations.size() - 1);
+            h.setStatus(HospitalizationStatus.ONGOING);
+            hospitalizationRepo.saveAll(hospitalizations);
+        }
+        return response;
+    }
+
+    public ServiceResponse approveHospitalization(
+            String hospitalizationId,
+            ArrayList<Hospitalization> hospitalizations) {
+
+        Hospitalization hosp = findById(hospitalizationId, hospitalizations);
+        if (hosp == null)
+            return ServiceResponse.notFound("Hospitalización no encontrada: " + hospitalizationId);
+        if (hosp.getStatus() != HospitalizationStatus.REQUESTED)
+            return ServiceResponse.badRequest("Solo se pueden aprobar hospitalizaciones en estado REQUESTED.");
+
+        hosp.setStatus(HospitalizationStatus.ONGOING);
+
+        hospitalizationRepo.saveAll(hospitalizations);
+        return ServiceResponse.ok("Hospitalización aprobada (ONGOING).");
+    }
+
     public ServiceResponse cancelHospitalization(
             String hospitalizationId,
             ArrayList<Hospitalization> hospitalizations) {
@@ -90,7 +95,6 @@ public class HospitalizationService implements IHospitalizationService {
             return ServiceResponse.badRequest("La hospitalización ya está cancelada.");
 
         hosp.setStatus(HospitalizationStatus.CANCELED);
-        // Limpiar referencia del paciente
         if (hosp.getPatient() != null) {
             hosp.getPatient().setHospitalization(null);
         }
@@ -98,8 +102,6 @@ public class HospitalizationService implements IHospitalizationService {
         hospitalizationRepo.saveAll(hospitalizations);
         return ServiceResponse.ok("Hospitalización cancelada.");
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     public Hospitalization findById(String id, ArrayList<Hospitalization> hospitalizations) {
         for (Hospitalization h : hospitalizations) {

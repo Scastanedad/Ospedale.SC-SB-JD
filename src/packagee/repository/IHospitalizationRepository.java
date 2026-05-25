@@ -5,10 +5,6 @@ import packagee.Hospitalization;
 import packagee.User;
 import packagee.observer.DataObserver;
 
-/**
- * Contrato para el repositorio de hospitalizaciones.
- * Principio SOLID: Inversión de Dependencias (DIP).
- */
 public interface IHospitalizationRepository {
     ArrayList<Hospitalization> loadAll(ArrayList<User> users);
     void saveAll(ArrayList<Hospitalization> hospitalizations);
